@@ -1,0 +1,2 @@
+skytemple-files==0.1.0a11
+Pillow==7.1.2
