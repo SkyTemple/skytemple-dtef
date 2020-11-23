@@ -46,42 +46,49 @@ REMAP_RULES = [
     DmaNeighbor.EAST | DmaNeighbor.SOUTH,
     DmaNeighbor.WEST | DmaNeighbor.EAST,
     DmaNeighbor.WEST | DmaNeighbor.SOUTH,
+
     DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.EAST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH,
     DmaNeighbor.NORTH | DmaNeighbor.SOUTH,
     0,
     DmaNeighbor.NORTH | DmaNeighbor.WEST,
+
     DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.EAST,
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST,
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.WEST,
     DmaNeighbor.NORTH | DmaNeighbor.EAST,
     DmaNeighbor.SOUTH,
     None,
+
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH,
     DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH,
     DmaNeighbor.EAST,
     DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH,
     DmaNeighbor.WEST,
+
     DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH,
     DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.EAST,
     DmaNeighbor.NORTH | DmaNeighbor.EAST | DmaNeighbor.SOUTH,
     DmaNeighbor.NORTH,
     DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.SOUTH,
+
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH,
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.EAST | DmaNeighbor.SOUTH,
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.SOUTH,
     DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH,
     DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
+
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.NORTH | DmaNeighbor.EAST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH,
     DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.EAST,
     DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST,
+
     DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST,
     DmaNeighbor.NORTH | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH,
     DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH,
@@ -125,8 +132,12 @@ class Dtef:
                 x = i % TILESHEET_WIDTH + (TILESHEET_WIDTH * ti)
                 y = floor(i / TILESHEET_WIDTH)
                 variations = self.dma.get(the_type, rule)
-                for img, iv in zip((self.var0, self.var1, self.var2), range(len(set(variations)))):
+                already_printed = set()
+                for img, iv in zip((self.var0, self.var1, self.var2), range(len(variations))):
                     variation = variations[iv]
+                    if variation in already_printed:
+                        continue
+                    already_printed.add(variation)
                     variation_map[iv].append(variation)
                     coord_map[variation] = (x, y)
                     if variation in dpcs_unprocessed:
@@ -135,7 +146,7 @@ class Dtef:
                 i += 1
 
         # Process all non-standard tiles
-        # TODO: WE NEED TO MAKE SURE THE REMAINING 209 CONFIGURATIONS ARE ALSO MAPPED CORRECTLY OR ADD THEM!
+        # TODO: WE NEED TO MAKE SURE THE REMAINING 209 CONFIGURATIONS ARE ALSO MAPPED CORRECTLY OR ADD THEM!lo
         self.rest_mappings: List[RestTileMapping] = []
         tiles_to_draw_on_more = []
         rest_mappings_idxes: Dict[int, int] = {}  # dpc -> rest_mappings index
@@ -181,7 +192,7 @@ class Dtef:
                     mappings.append(RestTileMappingEntry(DmaExtraType(typ), 0, i_real))
 
         more_width = TILESHEET_WIDTH * 3 * TW
-        more_height = max(1, ceil(len(tiles_to_draw_on_more) / more_width) * TW)
+        more_height = max(TW, ceil(len(tiles_to_draw_on_more) / more_width) * TW)
         self.rest = Image.new('P', (more_width, more_height))
         for i, tile_more in enumerate(tiles_to_draw_on_more):
             x = i % (TILESHEET_WIDTH * 3)
