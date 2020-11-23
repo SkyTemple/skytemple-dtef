@@ -58,8 +58,10 @@ for i, dma in enumerate(dungeon_bin):
         with open(os.path.join(output_dir, 'tileset.dtef.xml'), 'w') as f:
             f.write(prettify(dtef.get_xml()))
         # Write Tiles
-        dtef.get_tiles_img().save(os.path.join(output_dir, 'tileset.png'))
-        # Write DMA Mappings
-        with open(os.path.join(output_dir, 'tileset.dma'), 'wb') as f:
-            f.write(dtef.get_mappings())
+        var0, var1, var2, rest = dtef.get_tiles()
+        var0fn, var1fn, var2fn, restfn = dtef.get_filenames()
+        var0.save(os.path.join(output_dir, var0fn))
+        var1.save(os.path.join(output_dir, var1fn))
+        var2.save(os.path.join(output_dir, var2fn))
+        rest.save(os.path.join(output_dir, restfn))
         idx += 1

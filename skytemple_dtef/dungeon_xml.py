@@ -14,24 +14,104 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
+from typing import List, Union
 from xml.etree.ElementTree import Element
 
+from skytemple_files.graphics.dma.model import DmaType, DmaExtraType, DmaNeighbor
 from skytemple_files.graphics.dpla.model import Dpla, chunks
 
 DUNGEON_TILESET = "DungeonTileset"
+DIMENSIONS = "dimensions"
 ANIMATION = "Animation"
 ANIMATION__PALETTE = "palette"
 ANIMATION__DURATION = "duration"
 FRAME = "Frame"
 COLOR = "Color"
+ADDITIONAL_TILES = "AdditionalTiles"
+TILE = "Tile"
+TILE__X = "x"
+TILE__Y = "y"
+MAPPING = "Mapping"
+TILE__FILE = "file"
+MAPPING__TYPE = "type"
+MAPPING__TYPE__FLOOR = "floor"
+MAPPING__TYPE__WALL = "wall"
+MAPPING__TYPE__SECONDARY = "secondary"
+MAPPING__nw = "nw"
+MAPPING__n = "n"
+MAPPING__ne = "ne"
+MAPPING__e = "e"
+MAPPING__se = "se"
+MAPPING__s = "s"
+MAPPING__sw = "sw"
+MAPPING__w = "w"
+MAPPING__VARIATION = "variation"
+SPECIAL_MAPPING = "SpecialMapping"
+SPECIAL_MAPPING__IDENTIFIER = "identifier"
+
+
+class RestTileMappingEntry:
+    def __init__(self, dmatype: Union[DmaType, DmaExtraType], neighbors: int, variation_or_index: int):
+        self.dmatype = dmatype
+        self.neighbors = neighbors
+        self.variation_or_index = variation_or_index
+
+    def get_element(self):
+        if isinstance(self.dmatype, DmaExtraType):
+            return Element(
+                SPECIAL_MAPPING,
+                {
+                    SPECIAL_MAPPING__IDENTIFIER: self._get_special_identifier()
+                }
+            )
+        return Element(
+            MAPPING,
+            {
+                MAPPING__TYPE: self._get_mapping_type(),
+                MAPPING__VARIATION: str(self.variation_or_index),
+                MAPPING__nw: "1" if self.neighbors & DmaNeighbor.NORTH_WEST else "0",
+                MAPPING__n: "1" if self.neighbors & DmaNeighbor.NORTH else "0",
+                MAPPING__ne: "1" if self.neighbors & DmaNeighbor.NORTH_EAST else "0",
+                MAPPING__e: "1" if self.neighbors & DmaNeighbor.EAST else "0",
+                MAPPING__se: "1" if self.neighbors & DmaNeighbor.SOUTH_EAST else "0",
+                MAPPING__s: "1" if self.neighbors & DmaNeighbor.SOUTH else "0",
+                MAPPING__sw: "1" if self.neighbors & DmaNeighbor.SOUTH_WEST else "0",
+                MAPPING__w: "1" if self.neighbors & DmaNeighbor.WEST else "0"
+            }
+        )
+
+    def _get_special_identifier(self):
+        return f'EOS_EXTRA_{self.dmatype.name}_{self.variation_or_index}'
+
+    def _get_mapping_type(self):
+        if self.dmatype == DmaType.WALL:
+            return MAPPING__TYPE__WALL
+        if self.dmatype == DmaType.FLOOR:
+            return MAPPING__TYPE__FLOOR
+        return MAPPING__TYPE__SECONDARY
+
+
+class RestTileMapping:
+    def __init__(self, x: int, y: int, mappings: List[RestTileMappingEntry], file_name: str):
+        self.x = x
+        self.y = y
+        self.mappings = mappings
+        self.file_name = file_name
 
 
 class DungeonXml:
     @classmethod
-    def generate(cls, dpla: Dpla) -> Element:
-        dungeon_tileset = Element(DUNGEON_TILESET)
+    def generate(cls, dpla: Dpla, dungeon_tile_dimensions: int, rest_tile_mappings: List[RestTileMapping]) -> Element:
+        dungeon_tileset = Element(DUNGEON_TILESET, {DIMENSIONS: str(dungeon_tile_dimensions)})
         dungeon_tileset.append(cls._insert_palette_anim(dpla, 0))
         dungeon_tileset.append(cls._insert_palette_anim(dpla, 1))
+        rest = Element(ADDITIONAL_TILES)
+        for r in rest_tile_mappings:
+            tile = Element(TILE, {TILE__FILE: r.file_name, TILE__X: str(r.x), TILE__Y: str(r.y)})
+            for mapping in r.mappings:
+                tile.append(mapping.get_element())
+            rest.append(tile)
+        dungeon_tileset.append(rest)
         return dungeon_tileset
 
     @classmethod
