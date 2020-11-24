@@ -6,6 +6,14 @@ pipeline {
 
     stages {
 
+        stage("Tests") {
+            steps {
+                sh 'mkdir test_reports'
+                sh 'chmod a+rwxt test_reports'
+                sh 'docker run -v "$(pwd):/src" themattrix/tox'
+            }
+        }
+
         stage('Build') {
             steps {
                 // Setup virtual env

@@ -22,7 +22,7 @@ def get_resources(file_exts):
 
 setup(
     name='skytemple-dtef',
-    version='0.1.0',
+    version='0.1.0a16',
     packages=find_packages(),
     package_data={'skytemple_files': get_resources(['.xml', '.asm', '.rst', 'LICENSE', '.txt', 'md'])},
     description="Dungeon Tile Exchange Format: A format for standardized ruled based tilesets with 256 adjacency combinations.",
@@ -39,6 +39,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8'
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9'
     ],
 )
