@@ -30,7 +30,7 @@ setup(
     long_description_content_type='text/x-rst',
     url='https://github.com/SkyTemple/skytemple-dtef/',
     install_requires=[
-        'skytemple-files >= 0.1.0a11',
+        'skytemple-files >= 0.1.0a15',
         'Pillow >= 6.1.0'
     ],
     classifiers=[

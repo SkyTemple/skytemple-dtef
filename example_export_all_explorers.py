@@ -20,7 +20,7 @@ import os
 
 from ndspy.rom import NintendoDSRom
 
-from skytemple_dtef.dtef import Dtef
+from skytemple_dtef.dtef import ExplorersDtef
 from skytemple_files.common.util import get_ppmdu_config_for_rom
 from skytemple_files.common.xml_util import prettify
 from skytemple_files.container.dungeon_bin.handler import DungeonBinHandler
@@ -49,7 +49,7 @@ for i, dma in enumerate(dungeon_bin):
         dpci: Dpci = dungeon_bin.get(fn.replace('.dma', '.dpci'))
         dpc: Dpc = dungeon_bin.get(fn.replace('.dma', '.dpc'))
         print(fn)
-        dtef = Dtef(dma, dpc, dpci, dpl, dpla)
+        dtef = ExplorersDtef(dma, dpc, dpci, dpl, dpla)
 
         output_dir = os.path.join(output_dir_base, str(idx))
         os.makedirs(os.path.join(output_dir), exist_ok=True)
