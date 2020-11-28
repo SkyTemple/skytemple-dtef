@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
 from typing import List, Union
-from xml.etree.ElementTree import Element
+from xml.etree.ElementTree import Element, Comment
 
 from skytemple_files.graphics.dma.model import DmaType, DmaExtraType, DmaNeighbor
 from skytemple_files.graphics.dpla.model import Dpla, chunks
@@ -103,8 +103,40 @@ class DungeonXml:
     @classmethod
     def generate(cls, dpla: Dpla, dungeon_tile_dimensions: int, rest_tile_mappings: List[RestTileMapping]) -> Element:
         dungeon_tileset = Element(DUNGEON_TILESET, {DIMENSIONS: str(dungeon_tile_dimensions)})
+        dungeon_tileset.append(Comment(" Dungeon Tile Exchange Format (DTEF) - SkyTemple PMD Explorers of Sky Export.\n"
+                                       "       This XML file contains additional metadata for the tileset.\n"
+                                       "       The main tiles can be found in tileset_0.png, variations if it "
+                                       "(if they exist) in tileset_1.png and tileset_2.png.\n       "
+                                       "This XML file may define additional tile mappings, see below.\n       "
+                                       "For more information, see the documentation at "
+                                       "https://github.com/SkyTemple/skytemple-dtef/blob/main/docs/SkyTemple.rst. "))
+        dungeon_tileset.append(Comment(" Palette Animations.\n       "
+                                       "The palettes 10 and 11 can be animated. How long each frame will be held "
+                                       "is controlled by the 'duration' attribute.\n       "
+                                       "Each 'Frame' is a list of the 16 colors for this frame as HTML-style color "
+                                       "codes. "))
         dungeon_tileset.append(cls._insert_palette_anim(dpla, 0))
         dungeon_tileset.append(cls._insert_palette_anim(dpla, 1))
+        dungeon_tileset.append(Comment(" Additional Tile Mappings.\n       "
+                                       "The tileset_X.png files define the main 47 rules for dungeon tiles. In theory "
+                                       "there can be way more however.\n       "
+                                       "This is due to the way the rules work, there can actually be 256 "
+                                       "different rules. Those 256 combinations are usually collapsed into the 47 rules."
+                                       "\n       If however a tile rule that is not on the tileset PNGs was assigned "
+                                       "a different tile, it is defined here.\n       \n       "
+                                       "Each entry here defines a tile, which file it is from and at which coordinate"
+                                       " it can be found in that file.\n       "
+                                       "For the additional rule mappings, the following syntax is used:"
+                                       '\n              <Mapping type="wall" variation="0" nw="0" n="1" ne="1" e="0" se="1" s="0" sw="1" w="1"/>'
+                                       '\n       "type" can be "wall"/"floor"/"secondary" and variation a number from '
+                                       '0-2. The rest define the rule as adjacencies (cardinal directions).'
+                                       '\n       \n       '
+                                       'In addition to these 256 rules, special additional mappings can be added.\n'
+                                       '       Explorers of Sky has some special rules like these, which are listed '
+                                       'here as well.\n       '
+                                       'The following syntax is used for those:'
+                                       '\n              <SpecialMapping identifier="EOS_EXTRA_WALL_OR_VOID_1"/>'
+                                       '\n       (The purpose of these is unknown.) '))
         rest = Element(ADDITIONAL_TILES)
         for r in rest_tile_mappings:
             tile = Element(TILE, {TILE__FILE: r.file_name, TILE__X: str(r.x), TILE__Y: str(r.y)})

@@ -15,12 +15,11 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
-import itertools
 import os
 
 from ndspy.rom import NintendoDSRom
 
-from skytemple_dtef.dtef import ExplorersDtef
+from skytemple_dtef.explorers_dtef import ExplorersDtef
 from skytemple_files.common.util import get_ppmdu_config_for_rom
 from skytemple_files.common.xml_util import prettify
 from skytemple_files.container.dungeon_bin.handler import DungeonBinHandler
