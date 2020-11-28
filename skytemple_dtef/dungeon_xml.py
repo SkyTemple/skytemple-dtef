@@ -31,8 +31,8 @@ ADDITIONAL_TILES = "AdditionalTiles"
 TILE = "Tile"
 TILE__X = "x"
 TILE__Y = "y"
-MAPPING = "Mapping"
 TILE__FILE = "file"
+MAPPING = "Mapping"
 MAPPING__TYPE = "type"
 MAPPING__TYPE__FLOOR = "floor"
 MAPPING__TYPE__WALL = "wall"
@@ -69,14 +69,14 @@ class RestTileMappingEntry:
             {
                 MAPPING__TYPE: self._get_mapping_type(),
                 MAPPING__VARIATION: str(self.variation_or_index),
-                MAPPING__nw: "1" if self.neighbors & DmaNeighbor.NORTH_WEST else "0",
-                MAPPING__n: "1" if self.neighbors & DmaNeighbor.NORTH else "0",
-                MAPPING__ne: "1" if self.neighbors & DmaNeighbor.NORTH_EAST else "0",
-                MAPPING__e: "1" if self.neighbors & DmaNeighbor.EAST else "0",
-                MAPPING__se: "1" if self.neighbors & DmaNeighbor.SOUTH_EAST else "0",
-                MAPPING__s: "1" if self.neighbors & DmaNeighbor.SOUTH else "0",
-                MAPPING__sw: "1" if self.neighbors & DmaNeighbor.SOUTH_WEST else "0",
-                MAPPING__w: "1" if self.neighbors & DmaNeighbor.WEST else "0"
+                MAPPING__nw: "1" if self.neighbors & DmaNeighbor.NORTH_WEST == DmaNeighbor.NORTH_WEST else "0",
+                MAPPING__n: "1" if self.neighbors & DmaNeighbor.NORTH == DmaNeighbor.NORTH else "0",
+                MAPPING__ne: "1" if self.neighbors & DmaNeighbor.NORTH_EAST == DmaNeighbor.NORTH_EAST else "0",
+                MAPPING__e: "1" if self.neighbors & DmaNeighbor.EAST == DmaNeighbor.EAST else "0",
+                MAPPING__se: "1" if self.neighbors & DmaNeighbor.SOUTH_EAST == DmaNeighbor.SOUTH_EAST else "0",
+                MAPPING__s: "1" if self.neighbors & DmaNeighbor.SOUTH == DmaNeighbor.SOUTH else "0",
+                MAPPING__sw: "1" if self.neighbors & DmaNeighbor.SOUTH_WEST == DmaNeighbor.SOUTH_WEST else "0",
+                MAPPING__w: "1" if self.neighbors & DmaNeighbor.WEST == DmaNeighbor.WEST else "0"
             }
         )
 

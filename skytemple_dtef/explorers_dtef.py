@@ -64,11 +64,14 @@ class ExplorersDtef:
 
         # Process tiles
         self._variation_map = [[], [], []]
+        self._coord_map = {}
         # Pre-fill variation maps
         for ti, the_type in enumerate((DmaType.WALL, DmaType.WATER, DmaType.FLOOR)):
             for i, base_rule in enumerate(get_rule_variations(REMAP_RULES).keys()):
                 if base_rule is None:
                     continue
+                x = i % TILESHEET_WIDTH + (TILESHEET_WIDTH * ti)
+                y = floor(i / TILESHEET_WIDTH)
                 variations = self.dma.get(the_type, base_rule)
                 already_printed = set()
                 for img, iv in zip((self.var0, self.var1, self.var2), range(len(variations))):
@@ -76,9 +79,8 @@ class ExplorersDtef:
                     if variation in already_printed:
                         continue
                     already_printed.add(variation)
+                    self._coord_map[variation] = (x, y)
                     self._variation_map[iv].append(variation)
-
-        self._coord_map = {}
 
         # Non standard tiles
         self.rest_mappings: List[RestTileMapping] = []
@@ -99,7 +101,6 @@ class ExplorersDtef:
                     if variation in already_printed:
                         continue
                     already_printed.add(variation)
-                    self._coord_map[variation] = (x, y)
                     paste(img, variation, x, y)
                 for other_rule in derived_rules:
                     if other_rule == base_rule:
@@ -108,11 +109,11 @@ class ExplorersDtef:
                     for index, (r_var, var) in enumerate(zip(r_variations, variations)):
                         if r_var != var:
                             # Process non-standard mappings
-                            self._add_extra_mapping(other_rule, r_var)
+                            self._add_extra_mapping(other_rule, r_var, index)
 
         # Process all extra tiles
         for i, m in enumerate(self.dma.chunk_mappings[0x300 * 3:]):
-            self._add_extra_mapping(0x300 * 3 + i, m)
+            self._add_extra_mapping(0x300 * 3 + i, m, None)
 
         more_width = TILESHEET_WIDTH * 3 * TW
         more_height = max(TW, ceil(len(self._tiles_to_draw_on_more) / more_width) * TW)
@@ -133,7 +134,7 @@ class ExplorersDtef:
     def get_filenames():
         return [VAR0_FN, VAR1_FN, VAR2_FN, MORE_FN]
 
-    def _add_extra_mapping(self, i, m):
+    def _add_extra_mapping(self, i, m, variation):
         if m in self._variation_map[0]:
             fn = VAR0_FN
             x, y = self._coord_map[m]
@@ -156,14 +157,12 @@ class ExplorersDtef:
         mappings = self.rest_mappings[self._rest_mappings_idxes[m]].mappings
         if i < 0x300 * 3:
             # Normal
-            variation = i % 3
-            i_real = int(i / 3)
             dma_type = DmaType.WALL
-            if i_real >= 0x200:
+            if i >= 0x200:
                 dma_type = DmaType.FLOOR
-            elif i_real >= 0x100:
+            elif i >= 0x100:
                 dma_type = DmaType.WATER
-            mappings.append(RestTileMappingEntry(dma_type, i_real, variation))
+            mappings.append(RestTileMappingEntry(dma_type, i, variation))
         else:
             # Special
             typ = i % 3
