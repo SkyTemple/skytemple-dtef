@@ -18,6 +18,9 @@ which contains the dimensions of each tile in this tileset as an integer.
 
 The "DungeonTileset" node can have additional sub-nodes as explained further in this document.
 
+The package may contain additional files, which are not part of this standard (documentation, extensions, templates,
+etc.)
+
 Tileset PNGs
 ------------
 Each DTEF package *should* contain at least one file named "tileset_0.png". This file contains the tiles for each
@@ -37,9 +40,6 @@ There can also be more PNG files with tiles which can be referenced in the "Addi
 The PNG files can either be indexed PNG files with 16x16 color palettes, of which the first color of each palettes is
 treated as transparent / empty or a full color RGBA image. Please note that animations (see "XML: Animation") are only
 supported for indexed images. All images must either have the same palettes if indexed or all must be RGBA.
-
-The package may contain additional files, which are not part of this standard (documentation, extensions, templates,
-etc.)
 
 XML: Animation
 --------------
