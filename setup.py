@@ -11,12 +11,12 @@ with open(path.join(this_directory, 'README.rst'), encoding='utf-8') as f:
 
 
 def get_resources(file_exts):
-    directory = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'skytemple_files', '_resources')
+    directory = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'skytemple_dtef')
     paths = []
     for (path, directories, filenames) in os.walk(directory):
         for filename in filenames:
             if any(filename.endswith(file_ext) for file_ext in file_exts):
-                paths.append(os.path.join('_resources', os.path.relpath(os.path.join('..', path, filename), directory)))
+                paths.append(os.path.relpath(os.path.join('..', path, filename), directory))
     return paths
 
 
@@ -24,7 +24,7 @@ setup(
     name='skytemple-dtef',
     version='0.1.0a16',
     packages=find_packages(),
-    package_data={'skytemple_files': get_resources(['.xml', '.asm', '.rst', 'LICENSE', '.txt', 'md'])},
+    package_data={'skytemple_dtef': get_resources(['.png'])},
     description="Dungeon Tile Exchange Format: A format for standardized rule-based tilesets with 256 adjacency combinations.",
     long_description=long_description,
     long_description_content_type='text/x-rst',

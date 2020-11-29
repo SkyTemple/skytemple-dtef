@@ -16,9 +16,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
 import os
+import shutil
 
 from ndspy.rom import NintendoDSRom
 
+from skytemple_dtef import get_template_file
 from skytemple_dtef.explorers_dtef import ExplorersDtef
 from skytemple_files.common.util import get_ppmdu_config_for_rom
 from skytemple_files.common.xml_util import prettify
@@ -63,4 +65,5 @@ for i, dma in enumerate(dungeon_bin):
         var1.save(os.path.join(output_dir, var1fn))
         var2.save(os.path.join(output_dir, var2fn))
         rest.save(os.path.join(output_dir, restfn))
+        shutil.copy(get_template_file(), os.path.join(output_dir, 'template.png'))
         idx += 1

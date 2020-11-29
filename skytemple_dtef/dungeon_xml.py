@@ -109,7 +109,7 @@ class DungeonXml:
                                        "(if they exist) in tileset_1.png and tileset_2.png.\n       "
                                        "This XML file may define additional tile mappings, see below.\n       "
                                        "For more information, see the documentation at "
-                                       "https://github.com/SkyTemple/skytemple-dtef/blob/main/docs/SkyTemple.rst. "))
+                                       "https://github.com/SkyTemple/skytemple-dtef/blob/main/docs/SkyTemple.rst "))
         dungeon_tileset.append(Comment(" Palette Animations.\n       "
                                        "The palettes 10 and 11 can be animated. How long each frame will be held "
                                        "is controlled by the 'duration' attribute.\n       "

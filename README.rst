@@ -33,6 +33,16 @@ SkyTemple Dungeon Tile Exchange Format (DTEF)
     :target: https://ko-fi.com/I2I81E5KH
     :alt: Ko-Fi
 
-WIP.
+A specification / standard for dungeon tilesets. The specification can be found in "docs/format.rst".
+
+Additionally this repository contains a reference implementation for importing / exporting tilesets from the
+game Pokémon Mystery Dungeon Explorers of Sky. This implementation supports a specific subset of the standard,
+which is documented in "docs/SkyTemple.rst".
+
+The goal of this standard is to make it easy to exchange rule-based tilesets between different games, tools and engines.
+
+Part of PMDCollab_, a collaborative effort for standardizing PMD related development efforts.
+
+.. _PMDCollab: http://pmdcollab.org/
 
 |kofi|

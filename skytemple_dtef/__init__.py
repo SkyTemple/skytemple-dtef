@@ -14,4 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
+import os
 
+
+def get_template_file():
+    return os.path.join(os.path.dirname(__file__), 'template.png')
