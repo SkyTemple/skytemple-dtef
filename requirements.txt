@@ -1,2 +1,2 @@
-skytemple-files==0.1.0a15
+skytemple-files==0.1.0rc1
 Pillow==7.1.2

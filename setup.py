@@ -22,7 +22,7 @@ def get_resources(file_exts):
 
 setup(
     name='skytemple-dtef',
-    version='0.1.0a16',
+    version='0.1.0rc1',
     packages=find_packages(),
     package_data={'skytemple_dtef': get_resources(['.png'])},
     description="Dungeon Tile Exchange Format: A format for standardized rule-based tilesets with 256 adjacency combinations.",
@@ -30,7 +30,7 @@ setup(
     long_description_content_type='text/x-rst',
     url='https://github.com/SkyTemple/skytemple-dtef/',
     install_requires=[
-        'skytemple-files >= 0.1.0a15',
+        'skytemple-files >= 0.1.0rc1',
         'Pillow >= 6.1.0'
     ],
     classifiers=[
