@@ -24,7 +24,7 @@ from xml.etree.ElementTree import Element
 
 from PIL import Image
 
-from skytemple_dtef.dungeon_xml import DungeonXml, RestTileMapping, RestTileMappingEntry, DUNGEON_TILESET, DIMENSIONS, \
+from skytemple_dtef.dungeon_xml import DUNGEON_TILESET, DIMENSIONS, \
     ANIMATION, ANIMATION__PALETTE, ANIMATION__DURATION, ADDITIONAL_TILES, COLOR, FRAME, TILE, TILE__X, TILE__Y, \
     TILE__FILE, MAPPING, SPECIAL_MAPPING, MAPPING__TYPE, MAPPING__TYPE__FLOOR, MAPPING__TYPE__WALL, \
     MAPPING__TYPE__SECONDARY, MAPPING__nw, MAPPING__n, MAPPING__ne, MAPPING__e, MAPPING__se, MAPPING__s, MAPPING__sw, \
@@ -44,6 +44,7 @@ PATTERN_FLOOR1 = re.compile(r"EOS_EXTRA_FLOOR1_(\d+)")
 PATTERN_FLOOR2 = re.compile(r"EOS_EXTRA_FLOOR2_(\d+)")
 PATTERN_WALL_OR_VOID = re.compile(r"EOS_EXTRA_WALL_OR_VOID_(\d+)")
 EMPTY_IMAGE = [0 for _ in range(CHUNK_DIM ** 2)]
+FULL = DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | DmaNeighbor.WEST | DmaNeighbor.EAST | DmaNeighbor.SOUTH_WEST | DmaNeighbor.SOUTH | DmaNeighbor.SOUTH_EAST
 
 
 class ExplorersDtefImporter:
@@ -143,6 +144,19 @@ class ExplorersDtefImporter:
         if tileset.height < by + h or tileset.width < bx + w:
             raise ValueError(f"Image '{fn}' is too small ({tileset.width}x{tileset.height}px), must be at least "
                              f"{bx+w}x{by+h}px.")
+
+        # We need to import the full wall tile first
+        if typ == DmaType.WALL and var_id == 0:
+            assert FULL in rule_map, "A rule is missing in the import set"
+            i = list(rule_map.keys()).index(FULL)
+            x = bx + (i % w)
+            y = by + floor(i / w)
+            cropped = tileset.crop(
+                (x * CHUNK_DIM, y * CHUNK_DIM, (x + 1) * CHUNK_DIM, (y + 1) * CHUNK_DIM)
+            )
+            chunk_index = self._insert_chunk_or_reuse(cropped)
+            self._tileset_chunk_map[fn][(x, y)] = chunk_index
+            # We don't need to assign the DMA index, we will do this below.
 
         for i, rules in enumerate(rule_map.values()):
             x = bx + (i % w)
