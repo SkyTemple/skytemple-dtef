@@ -7,8 +7,8 @@ SkyTemple Dungeon Tile Exchange Format (DTEF)
 
 .. |logo| image:: https://raw.githubusercontent.com/SkyTemple/skytemple/master/skytemple/data/icons/hicolor/256x256/apps/skytemple.png
 
-.. |build| image:: https://jenkins.riptide.parakoopa.de/buildStatus/icon?job=skytemple-dtef%2Fmaster
-    :target: https://jenkins.riptide.parakoopa.de/blue/organizations/jenkins/skytemple-dtef/activity
+.. |build| image:: https://img.shields.io/github/workflow/status/SkyTemple/skytemple-dtef/Build,%20test%20and%20publish
+    :target: https://pypi.org/project/skytemple-dtef/
     :alt: Build Status
 
 .. |pypi-version| image:: https://img.shields.io/pypi/v/skytemple-dtef
