@@ -1,3 +1,4 @@
+__version__ = '0.1.0rc1'
 import os
 
 from setuptools import setup, find_packages
@@ -22,7 +23,7 @@ def get_resources(file_exts):
 
 setup(
     name='skytemple-dtef',
-    version='0.1.0rc1',
+    version=__version__,
     packages=find_packages(),
     package_data={'skytemple_dtef': get_resources(['.png'])},
     description="Dungeon Tile Exchange Format: A format for standardized rule-based tilesets with 256 adjacency combinations.",
