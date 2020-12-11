@@ -1,4 +1,4 @@
-__version__ = '0.1.0rc2'
+__version__ = '1.0.0'
 import os
 
 from setuptools import setup, find_packages
@@ -31,11 +31,11 @@ setup(
     long_description_content_type='text/x-rst',
     url='https://github.com/SkyTemple/skytemple-dtef/',
     install_requires=[
-        'skytemple-files >= 0.1.0rc1',
+        'skytemple-files >= 1.0.0',
         'Pillow >= 6.1.0'
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Programming Language :: Python',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Programming Language :: Python :: 3.6',
