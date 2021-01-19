@@ -27,7 +27,7 @@ from ndspy.rom import NintendoDSRom
 
 from skytemple_dtef.dungeon_xml import ANIMATION, ADDITIONAL_TILES
 from skytemple_dtef.explorers_dtef import ExplorersDtef
-from skytemple_dtef.transform import apply_extended_animations, apply_alpha_transparency, xml_filter_tags
+from skytemple_dtef.transform import apply_extended_animations, xml_filter_tags
 from skytemple_files.common.types.file_types import FileType
 from skytemple_files.common.util import get_ppmdu_config_for_rom
 from skytemple_files.common.xml_util import prettify
@@ -493,7 +493,7 @@ MAPPING = """PMDO ID,EoS ID,Name,Type
 455,101,BuriedRelic2Sky,ground
 456,101,BuriedRelic2Sky,water"""
 
-output_dir_base = os.path.join(os.path.dirname(__file__), 'dbg_output')
+output_dir_base = os.path.join(os.path.dirname(__file__), 'dbg_output_pmdo_full_ani')
 base_dir = os.path.join(os.path.dirname(__file__), '..')
 
 rom = NintendoDSRom.fromFile(os.path.join(base_dir, 'skyworkcopy_us.nds'))
@@ -539,7 +539,7 @@ for dungeon_id, dungeon_spec in data.items():
     os.makedirs(os.path.join(output_dir), exist_ok=True)
 
     xml = dtef.get_xml()
-    pmdo = Element('PMDO')
+    pmdo = Element('RogueEssence')
     xwall = Element('Wall')
     xwall.text = str(wall)
     pmdo.append(xwall)
@@ -562,6 +562,5 @@ for dungeon_id, dungeon_spec in data.items():
 
     # Write Tiles
     for file_name, file in file_list:
-        file = apply_alpha_transparency(file)
         file.save(os.path.join(output_dir, file_name))
     idx += 1

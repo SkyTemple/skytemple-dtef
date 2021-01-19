@@ -16,18 +16,24 @@
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
 from math import floor
 
-from itertools import chain
 from typing import Tuple, Iterable, List, Optional
 from xml.etree.ElementTree import Element
 
 from PIL import Image
 
-from skytemple_dtef.dungeon_xml import ANIMATION, ANIMATION__PALETTE, ANIMATION__DURATION, DIMENSIONS
+from skytemple_dtef.dungeon_xml import ANIMATION, ANIMATION__PALETTE, ANIMATION__DURATION
 from skytemple_dtef.explorers_dtef import VAR0_FN, VAR1_FN, VAR2_FN, MORE_FN
 
 
+class ColorAnimInfo:
+    def __init__(self, index: int, duration: int, frame_colors_hex: List[Tuple[int, int, int]]):
+        self.index = index
+        self.duration = duration
+        self.frame_color_tuples = frame_colors_hex
+
+
 def apply_extended_animations(
-        xml: Element, var0: Image.Image, var1: Image.Image, var2: Image.Image, rest: Image.Image, reduce_durations=True
+        xml: Element, var0: Image.Image, var1: Image.Image, var2: Image.Image, rest: Image.Image
 ) -> Iterable[Tuple[str, Image.Image]]:
     """
     Generates images for each frame of palette animation, yields filenames and images for the frames.
@@ -36,65 +42,44 @@ def apply_extended_animations(
     get a lower LCM and thus a lower amount of frames.
     All input images MUST have mode 'P'.
     """
-    #  0,       1,        2,               3,                     4
-    #  palette, duration, frames,          current frame counter, time in current frame
-    #  int,     int,      List[List[int]], int,                   int
-    anim_specs: List[List[any]] = []
-    for node in xml:
-        if node.tag == ANIMATION and len(node) > 0:
-            anim_specs.append([
-                int(node.attrib[ANIMATION__PALETTE]), int(node.attrib[ANIMATION__DURATION]),
-                _get_pal_anim_frames(node), 0, 0
-            ])
-    # we only need to reduce durations if we have more than 1 animation.
-    if reduce_durations and len(anim_specs) > 0:
-        for spec in anim_specs:
-            spec[1] = spec[1] if spec[1] % 2 == 0 else spec[1] - 1
-    if len(anim_specs) > 0:
-        lowest_duration = min(duration for _, duration, __, ___, ____ in anim_specs)
-        highest_duration = max(duration for _, duration, __, ___, ____ in anim_specs)
-    tile_dim = int(xml.attrib[DIMENSIONS])
-
+    color_groups = _build_color_groups(xml)
     for base_fn, base_img in ((VAR0_FN, var0), (VAR1_FN, var1), (VAR2_FN, var2), (MORE_FN, rest)):
-        # reset frame counters
-        for spec in anim_specs:
-            spec[3] = 0
-            spec[4] = 0
-        fi = 0
-        affected_chunks = _get_chunks_in_palettes(base_img, [spec[0] for spec in anim_specs], tile_dim)
-        if len(affected_chunks) < 1:
-            yield base_fn, base_img
-            continue
-        # while any animation not finished
-        while any(spec[3] < len(spec[2]) for spec in anim_specs):
-            if fi == 0:
-                # for the first frame we actually need to modify the base image
-                out_fn = base_fn
-                image = base_img
-            else:
-                out_fn = f'{base_fn[:-4]}_frame{fi - 1}.{lowest_duration}.png'
-                image = Image.new('P', base_img.size)
-                image.putpalette(base_img.getpalette())
-                # Copy chunks to animate to image
-                for x, y in affected_chunks:
-                    image.paste(base_img.crop(
-                        (x * tile_dim, y * tile_dim, (x + 1) * tile_dim, (y + 1) * tile_dim)),
-                        (x * tile_dim, y * tile_dim)
-                    )
-            for spec in anim_specs:
-                if spec[4] == 0:
-                    # Replace colors with palette frame colors
-                    palettes = image.getpalette()
-                    palettes[spec[0] * 3 * 16:(spec[0] + 1) * 3 * 16] = spec[2][spec[3] % len(spec[2])]
-                    image.putpalette(palettes)
-                    # Increment palette frame counter.
-                    spec[3] += 1
-                spec[4] += highest_duration
-                # Increment palette time in frame.
-                if spec[4] >= spec[1]:
-                    spec[4] = 0
-            yield out_fn, image
-            fi += 1
+        # Apply first frame color to base image
+        base_img = base_img.copy()
+        palettes = base_img.getpalette()
+        for color_group in color_groups:
+            for color in color_group:
+                palettes[color.index * 3:(color.index + 1) * 3] = color.frame_color_tuples[0]
+        base_img.putpalette(palettes)
+        yield base_fn, apply_alpha_transparency(base_img)
+        cgi = 0
+        for color_group in color_groups:
+            layer_map = _get_pixels_with_indices(base_img, [c.index for c in color_group])
+            if not any(layer_map):
+                continue
+            anything_was_replaced = False
+            for fi in range(0, len(color_group[0].frame_color_tuples)):
+                out_fn = f'{base_fn[:-4]}_frame{cgi}_{fi}.{color_group[0].duration}.png'
+                image = base_img.copy()
+                palettes = image.getpalette()
+                something_was_replaced = False
+                for color in color_group:
+                    # We don't process this color if all color frames are the same as the original color
+                    if all(c == tuple(palettes[color.index * 3:(color.index + 1) * 3]) for c in color.frame_color_tuples):
+                        continue
+                    anything_was_replaced = something_was_replaced = True
+                    # Replace colors with color frame colors
+                    palettes[color.index * 3:(color.index + 1) * 3] = color.frame_color_tuples[fi]
+                if not something_was_replaced:
+                    continue
+                image.putpalette(palettes)
+                mask = Image.new('L', base_img.size, color=255)
+                mask.putdata([255 if m else 0 for m in layer_map])
+                image = image.convert('RGBA')
+                image.putalpha(mask)
+                yield out_fn, image
+            if anything_was_replaced:
+                cgi += 1
 
 
 def xml_filter_tags(xml: Element, tag_list) -> Element:
@@ -115,30 +100,34 @@ def convert_hex_str_color_to_tuple(h: str) -> Optional[Tuple[int, int, int]]:
     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
 
-def _get_pal_anim_frames(xml_ani: Element) -> List[List[int]]:
-    frames = []
-    for frame in xml_ani:
-        colors = []
-        for color in frame:
-            colors.append(convert_hex_str_color_to_tuple(color.text))
-        frames.append(list(chain.from_iterable(colors)))
+def _build_color_groups(xml: Element) -> List[List[ColorAnimInfo]]:
+    colors_grouped = {}
+    for node in xml:
+        if node.tag == ANIMATION:
+            ci_base = 16 * (int(node.attrib[ANIMATION__PALETTE]))
+            colors_frame = None
+            for frame in node:
+                if colors_frame is None:
+                    colors_frame = []
+                    for ci, color in enumerate(frame):
+                        duration = color.attrib[ANIMATION__DURATION]
+                        c = ColorAnimInfo(ci_base + ci, duration, [])
+                        colors_frame.append(c)
+                        if (duration, len(node)) not in colors_grouped:
+                            colors_grouped[(duration, len(node))] = []
+                        colors_grouped[(duration, len(node))].append(c)
+                for ci, color in enumerate(frame):
+                    colors_frame[ci].frame_color_tuples.append(convert_hex_str_color_to_tuple(color.text))
+    return list(colors_grouped.values())
 
-    return frames
 
-
-def _get_chunks_in_palettes(base_img, pals, tile_tim) -> List[Tuple[int, int]]:
-    if len(pals) < 1:
-        return []
-    chunks = set()
-    for y in range(0, int(base_img.height / tile_tim)):
-        for x in range(0, int(base_img.width / tile_tim)):
-            for ty in range(0, 3):
-                for tx in range(0, 3):
-                    if floor(base_img.getpixel(
-                            (x * tile_tim + (tx * int(tile_tim / 3)), y * tile_tim + (ty * int(tile_tim / 3)))
-                    ) / 16) in pals:
-                        chunks.add((x, y))
-    return list(chunks)
+def _get_pixels_with_indices(img, indices):
+    pixels = img.load()
+    m = []
+    for j in range(img.size[1]):
+        for i in range(img.size[0]):
+            m.append(pixels[i, j] in indices)
+    return m
 
 
 def apply_alpha_transparency(img: Image.Image) -> Image.Image:

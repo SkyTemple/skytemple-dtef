@@ -5,8 +5,9 @@ It allowes for image based animations.
 
 Frame Files
 -----------
-Additionally to the base tileset PNGs, additional files with the pattern ``basename_frameX.Y.png`` max exist, where X
-is the frame number (starting at 0) and Y the duration of frames to hold this animation frame.
+Additionally to the base tileset PNGs, additional files with the pattern ``basename_frameX_Y.Z.png`` max exist, where Y
+is the frame number (starting at 0) and Z the duration of frames to hold this animation frame. X is the layer number,
+animation frames must be overlayed on the base image and each layer has it's own animation.
 
 Conversion
 ----------
