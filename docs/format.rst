@@ -46,14 +46,16 @@ XML: Animation
 Palette based animation for the tilesets. This is only supported for indexed tilesets. A tileset can have between 0 and
 16 "Animation" nodes, each represents the animation for a single palette.
 
-A "Animation" node has the palette number in its "palette" attribute and the duration to hold a single palette / frame
-in the amount of frames (assuming 60FPS).
+A "Animation" node has the palette number in its "palette" attribute.
 
 "Animation" nodes have an arbitrary amount of "Frame" sub-nodes. If it has no sub-nodes, then no animation exists (same
 as if the "Animation" node didn't exist).
 
 Each "Frame" must contain exactly 16 "Color" sub nodes, each representing a color in the palette that is being animated.
 The color is encoded as a hexadecimal (HTML-Style, without "#": "rrggbb", "ab12ef").
+
+Each color in the first frame has a duration that specifies how many frames to hold one frame of anymation for this color
+(assuming the games runs at 60FPS).
 
 XML: AdditionalTiles
 --------------------

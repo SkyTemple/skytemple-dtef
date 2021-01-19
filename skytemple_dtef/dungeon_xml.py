@@ -18,7 +18,7 @@ from typing import List, Union
 from xml.etree.ElementTree import Element, Comment
 
 from skytemple_files.graphics.dma.model import DmaType, DmaExtraType, DmaNeighbor
-from skytemple_files.graphics.dpla.model import Dpla, chunks
+from skytemple_files.graphics.dpla.model import Dpla, chunks, DPLA_COLORS_PER_PALETTE
 
 DUNGEON_TILESET = "DungeonTileset"
 DIMENSIONS = "dimensions"
@@ -111,8 +111,8 @@ class DungeonXml:
                                        "For more information, see the documentation at "
                                        "https://github.com/SkyTemple/skytemple-dtef/blob/main/docs/SkyTemple.rst "))
         dungeon_tileset.append(Comment(" Palette Animations.\n       "
-                                       "The palettes 10 and 11 can be animated. How long each frame will be held "
-                                       "is controlled by the 'duration' attribute.\n       "
+                                       "The palettes 10 and 11 can be animated. How long a color will be held "
+                                       "is controlled by the 'duration' attribute for the colors in the first frame.\n       "
                                        "Each 'Frame' is a list of the 16 colors for this frame as HTML-style color "
                                        "codes. "))
         dungeon_tileset.append(cls._insert_palette_anim(dpla, 0))
@@ -149,14 +149,17 @@ class DungeonXml:
     @classmethod
     def _insert_palette_anim(cls, dpla: Dpla, idx):
         animation = Element(ANIMATION, {
-            ANIMATION__DURATION: str(dpla.get_duration_for_palette(idx)),
             ANIMATION__PALETTE: str(idx + 10)
         })
         if dpla.has_for_palette(idx):
             for fi in range(0, dpla.get_frame_count_for_palette(idx)):
                 frame = Element(FRAME)
-                for r, g, b in chunks(dpla.get_palette_for_frame(idx, fi), 3):
+                for ci, (r, g, b) in enumerate(chunks(dpla.get_palette_for_frame(idx, fi), 3)):
                     color = Element(COLOR)
+                    if fi == 0:
+                        color.attrib[ANIMATION__DURATION] = str(
+                            dpla.durations_per_frame_for_colors[idx * DPLA_COLORS_PER_PALETTE + ci]
+                        )
                     color.text = f'{r:02x}{g:02x}{b:02x}'
                     frame.append(color)
                 animation.append(frame)
