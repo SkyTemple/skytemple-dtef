@@ -97,7 +97,7 @@ class ExplorersDtefImporter:
             dur1 = 0
             for child in self._xml:
                 if child.tag == ANIMATION:
-                    validate_xml_attribs(child, [ANIMATION__PALETTE, ANIMATION__DURATION])
+                    validate_xml_attribs(child, [ANIMATION__PALETTE])
                     if child.attrib[ANIMATION__PALETTE] == "10":
                         ani0, dur0 = self._prepare_import_animation(child)
                     elif child.attrib[ANIMATION__PALETTE] == "11":
@@ -259,6 +259,10 @@ class ExplorersDtefImporter:
 
     def _prepare_import_animation(self, child):
         colors = [[] for _ in range(0, 16)]
+        color_animations = []
+        # If we have an old XML with duration on animation
+        if ANIMATION__DURATION in child.attrib:
+            color_animations = [int(child.attrib[ANIMATION__DURATION])] * 16
         for frame in child:
             validate_xml_tag(frame, FRAME)
             if len(frame) != 16:
@@ -267,11 +271,15 @@ class ExplorersDtefImporter:
             for i, color in enumerate(frame):
                 validate_xml_tag(color, COLOR)
                 colors[i] += self._convert_hex_str_color_to_tuple(color.text)
-        return colors, int(child.attrib[ANIMATION__DURATION])
+                if ANIMATION__DURATION in color.attrib:
+                    color_animations.append(int(color.attrib[ANIMATION__DURATION]))
+        if len(color_animations) != 16:
+            raise ValueError("Error in the XML: Durations for a palette or it's colors are not correctly defined.")
+        return colors, color_animations
 
     def _import_animation(self, ani0, ani1, dur0, dur1):
         self._dpla__colors = ani0 + ani1
-        self._dpla__durations_per_frame_for_colors = [dur0 for _ in range(0, 16)] + [dur1 for _ in range(0, 16)]
+        self._dpla__durations_per_frame_for_colors = dur0 + dur1
 
     def _finalize(self):
         tiles, palettes = self.dpc.pil_to_chunks(self._merge_chunks())
