@@ -31,6 +31,7 @@ from skytemple_dtef.dungeon_xml import DUNGEON_TILESET, DIMENSIONS, \
     MAPPING__w, MAPPING__VARIATION, SPECIAL_MAPPING__IDENTIFIER
 from skytemple_dtef.explorers_dtef import TILESHEET_WIDTH, TILESHEET_HEIGHT
 from skytemple_dtef.rules import get_rule_variations, REMAP_RULES
+from skytemple_files.common.i18n_util import _, f
 from skytemple_files.common.xml_util import validate_xml_attribs, validate_xml_tag
 from skytemple_files.graphics.dma.model import Dma, DmaType, DmaExtraType, DmaNeighbor
 from skytemple_files.graphics.dpc.model import Dpc, DPC_TILING_DIM
@@ -81,8 +82,10 @@ class ExplorersDtefImporter:
             validate_xml_tag(self._xml, DUNGEON_TILESET)
             validate_xml_attribs(self._xml, [DIMENSIONS])
             if int(self._xml.attrib[DIMENSIONS]) != CHUNK_DIM:
-                raise ValueError(f"Invalid tileset. Tileset has chunk dimensions of {self._xml.attrib[DIMENSIONS]}px, "
-                                 f"but only {CHUNK_DIM}px are supported.")
+                # noinspection PyUnusedLocal
+                dim = self._xml.attrib[DIMENSIONS]
+                raise ValueError(f(_("Invalid tileset. Tileset has chunk dimensions of {dim}px, "
+                                     "but only {CHUNK_DIM}px are supported.")))
 
             var_map = get_rule_variations(REMAP_RULES)
             ts = [os.path.basename(fn_var0), os.path.basename(fn_var1), os.path.basename(fn_var2)]
@@ -91,8 +94,8 @@ class ExplorersDtefImporter:
                 self._import_tileset(fn, var_map, DmaType.WATER, TILESHEET_WIDTH, 0, TILESHEET_WIDTH, TILESHEET_HEIGHT, i, ts[i-1] if i > 0 else None)
                 self._import_tileset(fn, var_map, DmaType.FLOOR, TILESHEET_WIDTH * 2, 0, TILESHEET_WIDTH, TILESHEET_HEIGHT, i, ts[i-1] if i > 0 else None)
 
-            ani0 = [[] for _ in range(0, 16)]
-            ani1 = [[] for _ in range(0, 16)]
+            ani0 = [[] for __ in range(0, 16)]
+            ani1 = [[] for __ in range(0, 16)]
             dur0 = 0
             dur1 = 0
             for child in self._xml:
@@ -103,7 +106,7 @@ class ExplorersDtefImporter:
                     elif child.attrib[ANIMATION__PALETTE] == "11":
                         ani1, dur1 = self._prepare_import_animation(child)
                     else:
-                        raise ValueError("Invalid animation: Animation is only supported for palettes 10 and 11.")
+                        raise ValueError(_("Invalid animation: Animation is only supported for palettes 10 and 11."))
                 if child.tag == ADDITIONAL_TILES:
                     self._import_additional_tiles(child, dirname)
             self._import_animation(ani0, ani1, dur0, dur1)
@@ -117,7 +120,7 @@ class ExplorersDtefImporter:
     @staticmethod
     def _assert_file_exists(fn):
         if not os.path.exists(fn):
-            raise ValueError(f"A required DTEF file is missing: {fn}. Please verify the DTEF package.")
+            raise ValueError(f(_("A required DTEF file is missing: {fn}. Please verify the DTEF package.")))
 
     def _open_tileset(self, fn):
         self._assert_file_exists(fn)
@@ -125,29 +128,29 @@ class ExplorersDtefImporter:
         pil = self._tileset_file_map[basename] = Image.open(fn)
         self._tileset_chunk_map[basename] = {}
         if pil.mode != 'P':
-            raise ValueError(f'Can not import image "{basename}" as dungeon tileset: '
-                             f'Must be indexed image (=using a palette)')
+            raise ValueError(f(_('Can not import image "{basename}" as dungeon tileset: '
+                                 'Must be indexed image (=using a palette)')))
         if pil.palette.mode != 'RGB' or len(pil.palette.palette) != 256 * 3:
-            raise ValueError(f'Can not import image "{basename}" as dungeon tileset: '
-                             f'Palette must contain  256 RGB colors.')
+            raise ValueError(f(_('Can not import image "{basename}" as dungeon tileset: '
+                                 'Palette must contain  256 RGB colors.')))
         if self._palette is None:
             self._palette = bytes(pil.palette.palette)
         if pil.palette.palette != self._palette:
-            raise ValueError(f'Can not import images as dungeon tilesets: '
-                             f'The palettes of the images do not match. First image read that didn\'t match: '
-                             f'"{basename}"')
+            raise ValueError(f(_('Can not import images as dungeon tilesets: '
+                                 'The palettes of the images do not match. First image read that didn\'t match: '
+                                 '"{basename}"')))
 
     def _import_tileset(self, fn: str, rule_map: Dict[int, Set[int]], typ: DmaType, bx, by, w, h, var_id, prev_fn: str):
-        assert fn in self._tileset_file_map, f"Logic error: Tileset file {fn} was not loaded."
-        assert fn in self._tileset_chunk_map, f"Logic error: Tileset file {fn} was not loaded."
+        assert fn in self._tileset_file_map, f(_("Logic error: Tileset file {fn} was not loaded."))
+        assert fn in self._tileset_chunk_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         tileset = self._tileset_file_map[fn]
         if tileset.height < by + h or tileset.width < bx + w:
-            raise ValueError(f"Image '{fn}' is too small ({tileset.width}x{tileset.height}px), must be at least "
-                             f"{bx+w}x{by+h}px.")
+            raise ValueError(f(_("Image '{fn}' is too small ({tileset.width}x{tileset.height}px), must be at least "
+                                 "{bx+w}x{by+h}px.")))
 
         # We need to import the full wall tile first
         if typ == DmaType.WALL and var_id == 0:
-            assert FULL in rule_map, "A rule is missing in the import set"
+            assert FULL in rule_map, _("A rule is missing in the import set")
             i = list(rule_map.keys()).index(FULL)
             x = bx + (i % w)
             y = by + floor(i / w)
@@ -220,11 +223,13 @@ class ExplorersDtefImporter:
                     elif mapping.attrib[MAPPING__TYPE] == MAPPING__TYPE__SECONDARY:
                         typ = DmaType.WATER
                     else:
-                        raise ValueError(f"Error when importing mapping. Unknown type: "
-                                         f"'{mapping.attrib[MAPPING__TYPE]}'.")
+                        # noinspection PyUnusedLocal
+                        mapping_type = mapping.attrib[MAPPING__TYPE]
+                        raise ValueError(f(_("Error when importing mapping. Unknown type: "
+                                             "'{mapping_type}'.")))
                     var_idx = int(mapping.attrib[MAPPING__VARIATION])
                     if var_idx < 0 or var_idx > 2:
-                        raise ValueError(f"Invalid variation index {var_idx}.")
+                        raise ValueError(f(_("Invalid variation index {var_idx}.")))
 
                     self.dma.set(typ, n, var_idx, chunk)
 
@@ -258,7 +263,7 @@ class ExplorersDtefImporter:
         return new_img
 
     def _prepare_import_animation(self, child):
-        colors = [[] for _ in range(0, 16)]
+        colors = [[] for __ in range(0, 16)]
         color_animations = []
         # If we have an old XML with duration on animation
         if ANIMATION__DURATION in child.attrib:
@@ -266,15 +271,15 @@ class ExplorersDtefImporter:
         for frame in child:
             validate_xml_tag(frame, FRAME)
             if len(frame) != 16:
-                raise ValueError("Error in the XML: One of the animation frames doesn't have 16 colors. Each frame must"
-                                 " have a value for each color.")
+                raise ValueError(_("Error in the XML: One of the animation frames doesn't have 16 colors. Each frame "
+                                   "must have a value for each color."))
             for i, color in enumerate(frame):
                 validate_xml_tag(color, COLOR)
                 colors[i] += self._convert_hex_str_color_to_tuple(color.text)
                 if ANIMATION__DURATION in color.attrib:
                     color_animations.append(int(color.attrib[ANIMATION__DURATION]))
         if len(color_animations) != 16:
-            raise ValueError("Error in the XML: Durations for a palette or it's colors are not correctly defined.")
+            raise ValueError(_("Error in the XML: Durations for a palette or it's colors are not correctly defined."))
         return colors, color_animations
 
     def _import_animation(self, ani0, ani1, dur0, dur1):
