@@ -22,7 +22,7 @@ one affected by the rule.
 from typing import Dict, Set, Iterable
 
 from skytemple_files.graphics.dma.model import DmaNeighbor
-
+from skytemple_files.common.i18n_util import _, f
 
 # The 47 base rule-set, in the order as drawn on the tilesheet. PLEASE NOTE that there is one entry "None", which
 # creates an empty tile on the tilesheet (= the list contains 48 entries, one is None).
@@ -115,6 +115,6 @@ def get_rule_variations(input_rules: Iterable[int]) -> Dict[int, Set[int]]:
         if rule in rules:
             rules[rule].add(orig_rule)
         else:
-            raise ValueError(f"No match found for rule {orig_rule}. Input set correct?")
+            raise ValueError(f(_("No match found for rule {orig_rule}. Input set correct?")))
 
     return rules
