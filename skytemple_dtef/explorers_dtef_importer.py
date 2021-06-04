@@ -96,15 +96,17 @@ class ExplorersDtefImporter:
 
             ani0 = [[] for __ in range(0, 16)]
             ani1 = [[] for __ in range(0, 16)]
-            dur0 = 0
-            dur1 = 0
+            dur0 = [[] for __ in range(0, 16)]
+            dur1 = [[] for __ in range(0, 16)]
             for child in self._xml:
                 if child.tag == ANIMATION:
                     validate_xml_attribs(child, [ANIMATION__PALETTE])
                     if child.attrib[ANIMATION__PALETTE] == "10":
-                        ani0, dur0 = self._prepare_import_animation(child)
+                        if len(child) > 0:
+                            ani0, dur0 = self._prepare_import_animation(child)
                     elif child.attrib[ANIMATION__PALETTE] == "11":
-                        ani1, dur1 = self._prepare_import_animation(child)
+                        if len(child) > 0:
+                            ani1, dur1 = self._prepare_import_animation(child)
                     else:
                         raise ValueError(_("Invalid animation: Animation is only supported for palettes 10 and 11."))
                 if child.tag == ADDITIONAL_TILES:
