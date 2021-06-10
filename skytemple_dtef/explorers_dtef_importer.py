@@ -96,8 +96,8 @@ class ExplorersDtefImporter:
 
             ani0 = [[] for __ in range(0, 16)]
             ani1 = [[] for __ in range(0, 16)]
-            dur0 = [[] for __ in range(0, 16)]
-            dur1 = [[] for __ in range(0, 16)]
+            dur0 = [6 for __ in range(0, 16)]
+            dur1 = [6 for __ in range(0, 16)]
             for child in self._xml:
                 if child.tag == ANIMATION:
                     validate_xml_attribs(child, [ANIMATION__PALETTE])
