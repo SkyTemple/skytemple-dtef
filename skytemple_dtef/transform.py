@@ -1,4 +1,4 @@
-#  Copyright 2020-2021 Parakoopa and the SkyTemple Contributors
+#  Copyright 2020-2022 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
@@ -16,7 +16,7 @@
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
 from math import floor
 
-from typing import Tuple, Iterable, List, Optional
+from typing import Tuple, Iterable, List, Optional, Dict
 from xml.etree.ElementTree import Element
 
 from PIL import Image
@@ -47,6 +47,7 @@ def apply_extended_animations(
         # Apply first frame color to base image
         base_img = base_img.copy()
         palettes = base_img.getpalette()
+        assert palettes is not None
         for color_group in color_groups:
             for color in color_group:
                 palettes[color.index * 3:(color.index + 1) * 3] = color.frame_color_tuples[0]
@@ -62,6 +63,7 @@ def apply_extended_animations(
                 out_fn = f'{base_fn[:-4]}_frame{cgi}_{fi}.{color_group[0].duration}.png'
                 image = base_img.copy()
                 palettes = image.getpalette()
+                assert palettes is not None
                 something_was_replaced = False
                 for color in color_group:
                     # We don't process this color if all color frames are the same as the original color
@@ -96,12 +98,11 @@ def xml_filter_tags(xml: Element, tag_list) -> Element:
 def convert_hex_str_color_to_tuple(h: str) -> Optional[Tuple[int, int, int]]:
     if h is None:
         return None
-    # noinspection PyTypeChecker
-    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))  # type: ignore
 
 
 def _build_color_groups(xml: Element) -> List[List[ColorAnimInfo]]:
-    colors_grouped = {}
+    colors_grouped: Dict[Tuple[int, int], List[ColorAnimInfo]] = {}
     for node in xml:
         if node.tag == ANIMATION:
             ci_base = 16 * (int(node.attrib[ANIMATION__PALETTE]))
@@ -110,14 +111,14 @@ def _build_color_groups(xml: Element) -> List[List[ColorAnimInfo]]:
                 if colors_frame is None:
                     colors_frame = []
                     for ci, color in enumerate(frame):
-                        duration = color.attrib[ANIMATION__DURATION]
+                        duration = int(color.attrib[ANIMATION__DURATION])
                         c = ColorAnimInfo(ci_base + ci, duration, [])
                         colors_frame.append(c)
                         if (duration, len(node)) not in colors_grouped:
                             colors_grouped[(duration, len(node))] = []
                         colors_grouped[(duration, len(node))].append(c)
                 for ci, color in enumerate(frame):
-                    colors_frame[ci].frame_color_tuples.append(convert_hex_str_color_to_tuple(color.text))
+                    colors_frame[ci].frame_color_tuples.append(convert_hex_str_color_to_tuple(color.text))  # type: ignore
     return list(colors_grouped.values())
 
 

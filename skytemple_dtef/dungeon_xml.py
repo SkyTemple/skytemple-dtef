@@ -1,4 +1,4 @@
-#  Copyright 2020-2021 Parakoopa and the SkyTemple Contributors
+#  Copyright 2020-2022 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
@@ -14,11 +14,12 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
-from typing import List, Union
+from typing import List, Union, Tuple, Literal
 from xml.etree.ElementTree import Element, Comment
 
-from skytemple_files.graphics.dma.model import DmaType, DmaExtraType, DmaNeighbor
-from skytemple_files.graphics.dpla.model import Dpla, chunks, DPLA_COLORS_PER_PALETTE
+from skytemple_files.graphics.dma.protocol import DmaType, DmaExtraType, DmaNeighbor
+from skytemple_files.graphics.dpla import DPLA_COLORS_PER_PALETTE
+from skytemple_files.graphics.dpla.protocol import DplaProtocol, chunk
 
 DUNGEON_TILESET = "DungeonTileset"
 DIMENSIONS = "dimensions"
@@ -51,13 +52,14 @@ SPECIAL_MAPPING__IDENTIFIER = "identifier"
 
 
 class RestTileMappingEntry:
-    def __init__(self, dmatype: Union[DmaType, DmaExtraType], neighbors: int, variation_or_index: int):
-        self.dmatype = dmatype
+    def __init__(self, dmatype_name: Union[Literal["normal"], Literal["extra"]], dmatype_idx: int, neighbors: int, variation_or_index: int):
+        self.dmatype_name = dmatype_name
+        self.dmatype_idx = dmatype_idx
         self.neighbors = neighbors
         self.variation_or_index = variation_or_index
 
     def get_element(self):
-        if isinstance(self.dmatype, DmaExtraType):
+        if self.dmatype_name == "extra":
             return Element(
                 SPECIAL_MAPPING,
                 {
@@ -81,14 +83,21 @@ class RestTileMappingEntry:
         )
 
     def _get_special_identifier(self):
-        return f'EOS_EXTRA_{self.dmatype.name}_{self.variation_or_index}'
+        return f'EOS_EXTRA_{self._dma_type_extra_name()}_{self.variation_or_index}'
 
     def _get_mapping_type(self):
-        if self.dmatype == DmaType.WALL:
+        if self.dmatype_idx == DmaType.WALL:
             return MAPPING__TYPE__WALL
-        if self.dmatype == DmaType.FLOOR:
+        if self.dmatype_idx == DmaType.FLOOR:
             return MAPPING__TYPE__FLOOR
         return MAPPING__TYPE__SECONDARY
+
+    def _dma_type_extra_name(self):
+        if self.dmatype_idx == DmaExtraType.FLOOR1:
+            return 'FLOOR1'
+        if self.dmatype_idx == DmaExtraType.FLOOR2:
+            return 'FLOOR2'
+        return 'WALL_OR_VOID'
 
 
 class RestTileMapping:
@@ -101,7 +110,7 @@ class RestTileMapping:
 
 class DungeonXml:
     @classmethod
-    def generate(cls, dpla: Dpla, dungeon_tile_dimensions: int, rest_tile_mappings: List[RestTileMapping]) -> Element:
+    def generate(cls, dpla: DplaProtocol, dungeon_tile_dimensions: int, rest_tile_mappings: List[RestTileMapping]) -> Element:
         dungeon_tileset = Element(DUNGEON_TILESET, {DIMENSIONS: str(dungeon_tile_dimensions)})
         dungeon_tileset.append(Comment(" Dungeon Tile Exchange Format (DTEF) - SkyTemple PMD Explorers of Sky Export.\n"
                                        "       This XML file contains additional metadata for the tileset.\n"
@@ -147,14 +156,14 @@ class DungeonXml:
         return dungeon_tileset
 
     @classmethod
-    def _insert_palette_anim(cls, dpla: Dpla, idx):
+    def _insert_palette_anim(cls, dpla: DplaProtocol, idx):
         animation = Element(ANIMATION, {
             ANIMATION__PALETTE: str(idx + 10)
         })
         if dpla.has_for_palette(idx):
             for fi in range(0, dpla.get_frame_count_for_palette(idx)):
                 frame = Element(FRAME)
-                for ci, (r, g, b) in enumerate(chunks(dpla.get_palette_for_frame(idx, fi), 3)):
+                for ci, (r, g, b) in enumerate(chunk(dpla.get_palette_for_frame(idx, fi), 3)):
                     color = Element(COLOR)
                     if fi == 0:
                         color.attrib[ANIMATION__DURATION] = str(
