@@ -132,7 +132,7 @@ class ExplorersDtefImporter:
         if pil.mode != 'P':
             raise ValueError(f(_('Can not import image "{basename}" as dungeon tileset: '
                                  'Must be indexed image (=using a palette)')))
-        if pil.palette.mode != 'RGB' or len(pil.palette.palette) != 256 * 3:
+        if pil.palette.mode != 'RGB':
             raise ValueError(f(_('Can not import image "{basename}" as dungeon tileset: '
                                  'Palette must contain  256 RGB colors.')))
         if self._palette is None:
