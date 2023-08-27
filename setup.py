@@ -31,7 +31,7 @@ setup(
     long_description_content_type='text/x-rst',
     url='https://github.com/SkyTemple/skytemple-dtef/',
     install_requires=[
-        'skytemple-files >= 1.4.0',
+        'skytemple-files >= 1.6.0a3',
         'Pillow >= 6.1.0'
     ],
     classifiers=[
@@ -41,5 +41,6 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
 )
