@@ -3,7 +3,7 @@ This module contains the 47 base rules and a function to get the 209 derivations
 rules). In total this makes 256 rules, each rule codes which of the 8 neighboring tiles have the same state as the
 one affected by the rule.
 """
-#  Copyright 2020-2022 Capypara and the SkyTemple Contributors
+#  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #

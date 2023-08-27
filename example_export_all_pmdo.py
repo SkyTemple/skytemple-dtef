@@ -2,7 +2,7 @@
 Example script to export all dungeon tilesets from Explorers of Sky as "extended animations" DTEF for use in PMDO.
 Mapping from https://docs.google.com/spreadsheets/d/1CBytuPKNaK-NITssa7TZdZNrK8NdOBx_0etyDckF6ZI/edit#gid=0
 """
-#  Copyright 2020-2022 Capypara and the SkyTemple Contributors
+#  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
