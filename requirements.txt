@@ -1,4 +1,4 @@
-git+git://github.com/skytemple/skytemple-files@master#egg=skytemple_files
+git+https://github.com/skytemple/skytemple-files@master#egg=skytemple_files
 Pillow==8.3.2
 skytemple-3rdparty-typestubs
 types-Pillow==8.3.8
