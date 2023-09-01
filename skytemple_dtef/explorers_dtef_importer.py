@@ -262,13 +262,13 @@ class ExplorersDtefImporter:
 
     def _merge_chunks(self):
         new_img = Image.new('P', (CHUNK_DIM * len(self._chunks), CHUNK_DIM))
-        new_img.putpalette(self._chunks[1].getpalette())
+        new_img.putpalette(self._chunks[1].getpalette())  # type: ignore
         for i, chunk in enumerate(self._chunks):
             new_img.paste(chunk, (i * CHUNK_DIM, 0))
         return new_img
 
     def _prepare_import_animation(self, child):
-        colors = [[] for __ in range(0, 16)]
+        colors: List[List[int]] = [[] for __ in range(0, 16)]
         color_animations = []
         # If we have an old XML with duration on animation
         if ANIMATION__DURATION in child.attrib:
