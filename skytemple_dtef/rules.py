@@ -3,7 +3,7 @@ This module contains the 47 base rules and a function to get the 209 derivations
 rules). In total this makes 256 rules, each rule codes which of the 8 neighboring tiles have the same state as the
 one affected by the rule.
 """
-#  Copyright 2020-2021 Parakoopa and the SkyTemple Contributors
+#  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
@@ -19,9 +19,9 @@ one affected by the rule.
 #
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
-from typing import Dict, Set, Iterable
+from typing import Dict, Set, Iterable, Optional
 
-from skytemple_files.graphics.dma.model import DmaNeighbor
+from skytemple_files.graphics.dma.protocol import DmaNeighbor
 from skytemple_files.common.i18n_util import _, f
 
 # The 47 base rule-set, in the order as drawn on the tilesheet. PLEASE NOTE that there is one entry "None", which
@@ -86,14 +86,14 @@ REMAP_RULES = [
 ]
 
 
-def get_rule_variations(input_rules: Iterable[int]) -> Dict[int, Set[int]]:
+def get_rule_variations(input_rules: Iterable[Optional[int]]) -> Dict[int, Set[int]]:
     """
     Returns all 256-set rules which encode the same tile in a reduced rule-set of 47 rules
     (including the rule passed in). If the rule passed in is None, an empty list is returned.
     Rules are ORed numbers created form DmaNeighbors. See REMAP_RULES for the 47 rule-set.
     The returned value is a dict, where each key is one of the input rules, and the values ALL matching 256-rules.
     """
-    rules = {x: set() for x in input_rules}
+    rules: Dict[int, Set[int]] = {x: set() for x in input_rules if x is not None}
     for rule in range(0, 256):
         orig_rule = rule
         if rule & DmaNeighbor.NORTH_WEST == DmaNeighbor.NORTH_WEST:

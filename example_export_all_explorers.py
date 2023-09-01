@@ -1,5 +1,5 @@
 """Example script to export all dungeon tilesets from Explorers of Sky as DTEF."""
-#  Copyright 2020-2021 Parakoopa and the SkyTemple Contributors
+#  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
@@ -25,11 +25,11 @@ from skytemple_dtef.explorers_dtef import ExplorersDtef
 from skytemple_files.common.util import get_ppmdu_config_for_rom
 from skytemple_files.common.xml_util import prettify
 from skytemple_files.container.dungeon_bin.handler import DungeonBinHandler
-from skytemple_files.graphics.dma.model import Dma
-from skytemple_files.graphics.dpc.model import Dpc
-from skytemple_files.graphics.dpci.model import Dpci
-from skytemple_files.graphics.dpl.model import Dpl
-from skytemple_files.graphics.dpla.model import Dpla
+from skytemple_files.graphics.dma.protocol import DmaProtocol
+from skytemple_files.graphics.dpc.protocol import DpcProtocol
+from skytemple_files.graphics.dpci.protocol import DpciProtocol
+from skytemple_files.graphics.dpl.protocol import DplProtocol
+from skytemple_files.graphics.dpla.protocol import DplaProtocol
 
 output_dir_base = os.path.join(os.path.dirname(__file__), 'dbg_output')
 base_dir = os.path.join(os.path.dirname(__file__), '..')
@@ -44,11 +44,10 @@ idx = 0
 for i, dma in enumerate(dungeon_bin):
     fn = dungeon_bin.get_filename(i)
     if fn.endswith('.dma'):
-        dma: Dma
-        dpl: Dpl = dungeon_bin.get(fn.replace('.dma', '.dpl'))
-        dpla: Dpla = dungeon_bin.get(fn.replace('.dma', '.dpla'))
-        dpci: Dpci = dungeon_bin.get(fn.replace('.dma', '.dpci'))
-        dpc: Dpc = dungeon_bin.get(fn.replace('.dma', '.dpc'))
+        dpl: DplProtocol = dungeon_bin.get(fn.replace('.dma', '.dpl'))
+        dpla: DplaProtocol = dungeon_bin.get(fn.replace('.dma', '.dpla'))
+        dpci: DpciProtocol = dungeon_bin.get(fn.replace('.dma', '.dpci'))
+        dpc: DpcProtocol = dungeon_bin.get(fn.replace('.dma', '.dpc'))
         print(fn)
         dtef = ExplorersDtef(dma, dpc, dpci, dpl, dpla)
 

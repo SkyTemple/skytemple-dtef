@@ -2,7 +2,7 @@
 Example script to export all dungeon tilesets from Explorers of Sky as "extended animations" DTEF for use in PMDO.
 Mapping from https://docs.google.com/spreadsheets/d/1CBytuPKNaK-NITssa7TZdZNrK8NdOBx_0etyDckF6ZI/edit#gid=0
 """
-#  Copyright 2020-2021 Parakoopa and the SkyTemple Contributors
+#  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
@@ -21,6 +21,7 @@ Mapping from https://docs.google.com/spreadsheets/d/1CBytuPKNaK-NITssa7TZdZNrK8N
 import csv
 import os
 from io import StringIO
+from typing import Any
 from xml.etree.ElementTree import Element, Comment
 
 from ndspy.rom import NintendoDSRom
@@ -34,6 +35,11 @@ from skytemple_files.common.xml_util import prettify
 
 
 # PMDO ID,EoS ID,Name,Type
+from skytemple_files.graphics.dpc.protocol import DpcProtocol
+from skytemple_files.graphics.dpci.protocol import DpciProtocol
+from skytemple_files.graphics.dpl.protocol import DplProtocol
+from skytemple_files.graphics.dpla.protocol import DplaProtocol
+
 MAPPING = """PMDO ID,EoS ID,Name,Type
 0,0,TestDungeon,wall
 1,0,TestDungeon,ground
@@ -508,15 +514,15 @@ idx = 0
 for i, dma in enumerate(dungeon_bin):
     fn = dungeon_bin.get_filename(i)
     if fn.endswith('.dma'):
-        dpl = dungeon_bin.get(fn.replace('.dma', '.dpl'))
-        dpla = dungeon_bin.get(fn.replace('.dma', '.dpla'))
-        dpci = dungeon_bin.get(fn.replace('.dma', '.dpci'))
-        dpc = dungeon_bin.get(fn.replace('.dma', '.dpc'))
+        dpl: DplProtocol = dungeon_bin.get(fn.replace('.dma', '.dpl'))
+        dpla: DplaProtocol = dungeon_bin.get(fn.replace('.dma', '.dpla'))
+        dpci: DpciProtocol = dungeon_bin.get(fn.replace('.dma', '.dpci'))
+        dpc: DpcProtocol = dungeon_bin.get(fn.replace('.dma', '.dpc'))
         print(fn)
         eos_dungeons.append(ExplorersDtef(dma, dpc, dpci, dpl, dpla))
 
 print("Processing mapping and outputting...")
-data = {}
+data: Any = {}
 reader = csv.DictReader(StringIO(MAPPING))
 for row in reader:
     if row['EoS ID'] != '':

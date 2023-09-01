@@ -1,4 +1,4 @@
-#  Copyright 2020-2021 Parakoopa and the SkyTemple Contributors
+#  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
@@ -23,11 +23,13 @@ from PIL import Image
 
 from skytemple_dtef.dungeon_xml import DungeonXml, RestTileMapping, RestTileMappingEntry
 from skytemple_dtef.rules import get_rule_variations, REMAP_RULES
-from skytemple_files.graphics.dma.model import Dma, DmaType, DmaExtraType
-from skytemple_files.graphics.dpc.model import Dpc, DPC_TILING_DIM
-from skytemple_files.graphics.dpci.model import Dpci, DPCI_TILE_DIM
-from skytemple_files.graphics.dpl.model import Dpl
-from skytemple_files.graphics.dpla.model import Dpla
+from skytemple_files.graphics.dma.protocol import DmaProtocol, DmaType
+from skytemple_files.graphics.dpc import DPC_TILING_DIM
+from skytemple_files.graphics.dpc.protocol import DpcProtocol
+from skytemple_files.graphics.dpci import DPCI_TILE_DIM
+from skytemple_files.graphics.dpci.protocol import DpciProtocol
+from skytemple_files.graphics.dpl.protocol import DplProtocol
+from skytemple_files.graphics.dpla.protocol import DplaProtocol
 
 
 TILESHEET_WIDTH = 6
@@ -40,7 +42,7 @@ MORE_FN = 'tileset_more.png'
 
 
 class ExplorersDtef:
-    def __init__(self, dma: Dma, dpc: Dpc, dpci: Dpci, dpl: Dpl, dpla: Dpla):
+    def __init__(self, dma: DmaProtocol, dpc: DpcProtocol, dpci: DpciProtocol, dpl: DplProtocol, dpla: DplaProtocol):
         self.dma = dma
         self.dpc = dpc
         self.dpci = dpci
@@ -52,9 +54,9 @@ class ExplorersDtef:
         self.var1 = Image.new('P', (TILESHEET_WIDTH * 3 * TW, TILESHEET_HEIGHT * TW))
         self.var2 = Image.new('P', (TILESHEET_WIDTH * 3 * TW, TILESHEET_HEIGHT * TW))
         pal = chunks.getpalette()
-        self.var0.putpalette(pal)
-        self.var1.putpalette(pal)
-        self.var2.putpalette(pal)
+        self.var0.putpalette(pal)  # type: ignore
+        self.var1.putpalette(pal)  # type: ignore
+        self.var2.putpalette(pal)  # type: ignore
 
         def paste(fimg, chunk_index, x, y):
             fimg.paste(
@@ -63,7 +65,7 @@ class ExplorersDtef:
             )
 
         # Process tiles
-        self._variation_map = [[], [], []]
+        self._variation_map: List[List[int]] = [[], [], []]
         self._coord_map = {}
         # Pre-fill variation maps
         for ti, the_type in enumerate((DmaType.WALL, DmaType.WATER, DmaType.FLOOR)):
@@ -84,7 +86,7 @@ class ExplorersDtef:
 
         # Non standard tiles
         self.rest_mappings: List[RestTileMapping] = []
-        self._tiles_to_draw_on_more = []
+        self._tiles_to_draw_on_more: List[int] = []
         self._rest_mappings_idxes: Dict[int, int] = {}  # dpc -> rest_mappings index
 
         # Process all normal rule tiles (47-set and check 256-set extended)
@@ -122,7 +124,7 @@ class ExplorersDtef:
             x = i % (TILESHEET_WIDTH * 3)
             y = floor(i / (TILESHEET_WIDTH * 3))
             paste(self.rest, tile_more, x, y)
-        self.rest.putpalette(pal)
+        self.rest.putpalette(pal)  # type: ignore
 
     def get_xml(self) -> ElementTree.Element:
         return DungeonXml.generate(self.dpla, TW, self.rest_mappings)
@@ -162,9 +164,9 @@ class ExplorersDtef:
                 dma_type = DmaType.FLOOR
             elif i >= 0x100:
                 dma_type = DmaType.WATER
-            mappings.append(RestTileMappingEntry(dma_type, i, variation))
+            mappings.append(RestTileMappingEntry("normal", dma_type, i, variation))
         else:
             # Special
             typ = i % 3
             i_real = int(i / 3) - 0x300
-            mappings.append(RestTileMappingEntry(DmaExtraType(typ), 0, i_real))
+            mappings.append(RestTileMappingEntry("extra", typ, 0, i_real))

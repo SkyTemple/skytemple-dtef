@@ -1,4 +1,4 @@
-#  Copyright 2020-2021 Parakoopa and the SkyTemple Contributors
+#  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
@@ -20,7 +20,7 @@ from itertools import chain
 
 from skytemple_dtef.rules import *
 from skytemple_files.common.types.file_types import FileType
-from skytemple_files.graphics.dma.model import DmaType
+from skytemple_files.graphics.dma.protocol import DmaType
 
 NUMBER_COMBINATIONS = 256
 

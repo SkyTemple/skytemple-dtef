@@ -1,4 +1,4 @@
-#  Copyright 2020-2021 Parakoopa and the SkyTemple Contributors
+#  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
 #  This file is part of SkyTemple.
 #
@@ -33,11 +33,13 @@ from skytemple_dtef.explorers_dtef import TILESHEET_WIDTH, TILESHEET_HEIGHT
 from skytemple_dtef.rules import get_rule_variations, REMAP_RULES
 from skytemple_files.common.i18n_util import _, f
 from skytemple_files.common.xml_util import validate_xml_attribs, validate_xml_tag
-from skytemple_files.graphics.dma.model import Dma, DmaType, DmaExtraType, DmaNeighbor
-from skytemple_files.graphics.dpc.model import Dpc, DPC_TILING_DIM
-from skytemple_files.graphics.dpci.model import Dpci, DPCI_TILE_DIM
-from skytemple_files.graphics.dpl.model import Dpl
-from skytemple_files.graphics.dpla.model import Dpla
+from skytemple_files.graphics.dma.protocol import DmaProtocol, DmaType, DmaExtraType, DmaNeighbor
+from skytemple_files.graphics.dpc import DPC_TILING_DIM
+from skytemple_files.graphics.dpc.protocol import DpcProtocol
+from skytemple_files.graphics.dpci import DPCI_TILE_DIM
+from skytemple_files.graphics.dpci.protocol import DpciProtocol
+from skytemple_files.graphics.dpl.protocol import DplProtocol
+from skytemple_files.graphics.dpla.protocol import DplaProtocol
 
 
 CHUNK_DIM = DPC_TILING_DIM * DPCI_TILE_DIM
@@ -49,14 +51,14 @@ FULL = DmaNeighbor.NORTH_WEST | DmaNeighbor.NORTH | DmaNeighbor.NORTH_EAST | Dma
 
 
 class ExplorersDtefImporter:
-    def __init__(self, dma: Dma, dpc: Dpc, dpci: Dpci, dpl: Dpl, dpla: Dpla):
+    def __init__(self, dma: DmaProtocol, dpc: DpcProtocol, dpci: DpciProtocol, dpl: DplProtocol, dpla: DplaProtocol):
         self.dma = dma
         self.dpc = dpc
         self.dpci = dpci
         self.dpl = dpl
         self.dpla = dpla
 
-        self._dirname = None
+        self._dirname: Optional[str] = None
         self._tileset_file_map: Dict[str, Image.Image] = {}
         self._tileset_chunk_map: Dict[str, Dict[Tuple[int, int], int]] = {}
         self._xml: Optional[Element] = None
@@ -71,7 +73,7 @@ class ExplorersDtefImporter:
 
     def do_import(self, dirname: str, fn_xml: str, fn_var0: str, fn_var1: str, fn_var2: str):
         try:
-            self.__init__(self.dma, self.dpc, self.dpci, self.dpl, self.dpla)  # reset
+            self.__init__(self.dma, self.dpc, self.dpci, self.dpl, self.dpla)  # type: ignore
 
             self._dirname = dirname
             self._assert_file_exists(fn_xml)
@@ -88,14 +90,14 @@ class ExplorersDtefImporter:
                                      "but only {CHUNK_DIM}px are supported.")))
 
             var_map = get_rule_variations(REMAP_RULES)
-            ts = [os.path.basename(fn_var0), os.path.basename(fn_var1), os.path.basename(fn_var2)]
+            ts: List[str] = [os.path.basename(fn_var0), os.path.basename(fn_var1), os.path.basename(fn_var2)]
             for i, fn in enumerate(ts):
                 self._import_tileset(fn, var_map, DmaType.WALL, 0, 0, TILESHEET_WIDTH, TILESHEET_HEIGHT, i, ts[i-1] if i > 0 else None)
                 self._import_tileset(fn, var_map, DmaType.WATER, TILESHEET_WIDTH, 0, TILESHEET_WIDTH, TILESHEET_HEIGHT, i, ts[i-1] if i > 0 else None)
                 self._import_tileset(fn, var_map, DmaType.FLOOR, TILESHEET_WIDTH * 2, 0, TILESHEET_WIDTH, TILESHEET_HEIGHT, i, ts[i-1] if i > 0 else None)
 
-            ani0 = [[] for __ in range(0, 16)]
-            ani1 = [[] for __ in range(0, 16)]
+            ani0: List[List[int]] = [[] for __ in range(0, 16)]
+            ani1: List[List[int]] = [[] for __ in range(0, 16)]
             dur0 = [6 for __ in range(0, 16)]
             dur1 = [6 for __ in range(0, 16)]
             for child in self._xml:
@@ -142,7 +144,7 @@ class ExplorersDtefImporter:
                                  'The palettes of the images do not match. First image read that didn\'t match: '
                                  '"{basename}"')))
 
-    def _import_tileset(self, fn: str, rule_map: Dict[int, Set[int]], typ: DmaType, bx, by, w, h, var_id, prev_fn: str):
+    def _import_tileset(self, fn: str, rule_map: Dict[int, Set[int]], typ: int, bx, by, w, h, var_id, prev_fn: Optional[str]):
         assert fn in self._tileset_file_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         assert fn in self._tileset_chunk_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         tileset = self._tileset_file_map[fn]
@@ -171,6 +173,7 @@ class ExplorersDtefImporter:
             )
             if var_id > 0 and list(cropped.getdata()) == EMPTY_IMAGE:
                 # Empty tile in variation, use previous variation.
+                assert prev_fn is not None
                 chunk_index = self._tileset_chunk_map[prev_fn][(x, y)]
             else:
                 chunk_index = self._insert_chunk_or_reuse(cropped)
@@ -259,13 +262,13 @@ class ExplorersDtefImporter:
 
     def _merge_chunks(self):
         new_img = Image.new('P', (CHUNK_DIM * len(self._chunks), CHUNK_DIM))
-        new_img.putpalette(self._chunks[1].getpalette())
+        new_img.putpalette(self._chunks[1].getpalette())  # type: ignore
         for i, chunk in enumerate(self._chunks):
             new_img.paste(chunk, (i * CHUNK_DIM, 0))
         return new_img
 
     def _prepare_import_animation(self, child):
-        colors = [[] for __ in range(0, 16)]
+        colors: List[List[int]] = [[] for __ in range(0, 16)]
         color_animations = []
         # If we have an old XML with duration on animation
         if ANIMATION__DURATION in child.attrib:
