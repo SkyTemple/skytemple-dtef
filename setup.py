@@ -1,4 +1,4 @@
-__version__ = '1.6.0a3'
+__version__ = '1.6.0'
 import os
 
 from setuptools import setup, find_packages
@@ -31,7 +31,7 @@ setup(
     long_description_content_type='text/x-rst',
     url='https://github.com/SkyTemple/skytemple-dtef/',
     install_requires=[
-        'skytemple-files >= 1.6.0a3',
+        'skytemple-files >= 1.6.0rc1',
         'Pillow >= 6.1.0'
     ],
     classifiers=[
