@@ -16,7 +16,8 @@
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
 from math import floor
 
-from typing import Tuple, Iterable, List, Optional, Dict
+from typing import Tuple, List, Optional, Dict
+from collections.abc import Iterable
 from xml.etree.ElementTree import Element
 
 from PIL import Image
@@ -26,7 +27,7 @@ from skytemple_dtef.explorers_dtef import VAR0_FN, VAR1_FN, VAR2_FN, MORE_FN
 
 
 class ColorAnimInfo:
-    def __init__(self, index: int, duration: int, frame_colors_hex: List[Tuple[int, int, int]]):
+    def __init__(self, index: int, duration: int, frame_colors_hex: list[tuple[int, int, int]]):
         self.index = index
         self.duration = duration
         self.frame_color_tuples = frame_colors_hex
@@ -34,7 +35,7 @@ class ColorAnimInfo:
 
 def apply_extended_animations(
         xml: Element, var0: Image.Image, var1: Image.Image, var2: Image.Image, rest: Image.Image
-) -> Iterable[Tuple[str, Image.Image]]:
+) -> Iterable[tuple[str, Image.Image]]:
     """
     Generates images for each frame of palette animation, yields filenames and images for the frames.
     Since the animations can have different speeds, the total number of frames will be the LCM of the durations
@@ -95,14 +96,14 @@ def xml_filter_tags(xml: Element, tag_list) -> Element:
     return new_ele
 
 
-def convert_hex_str_color_to_tuple(h: str) -> Optional[Tuple[int, int, int]]:
+def convert_hex_str_color_to_tuple(h: str) -> Optional[tuple[int, int, int]]:
     if h is None:
         return None
     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))  # type: ignore
 
 
-def _build_color_groups(xml: Element) -> List[List[ColorAnimInfo]]:
-    colors_grouped: Dict[Tuple[int, int], List[ColorAnimInfo]] = {}
+def _build_color_groups(xml: Element) -> list[list[ColorAnimInfo]]:
+    colors_grouped: dict[tuple[int, int], list[ColorAnimInfo]] = {}
     for node in xml:
         if node.tag == ANIMATION:
             ci_base = 16 * (int(node.attrib[ANIMATION__PALETTE]))

@@ -19,7 +19,8 @@ one affected by the rule.
 #
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
-from typing import Dict, Set, Iterable, Optional
+from typing import Dict, Set, Optional
+from collections.abc import Iterable
 
 from skytemple_files.graphics.dma.protocol import DmaNeighbor
 from skytemple_files.common.i18n_util import _, f
@@ -86,14 +87,14 @@ REMAP_RULES = [
 ]
 
 
-def get_rule_variations(input_rules: Iterable[Optional[int]]) -> Dict[int, Set[int]]:
+def get_rule_variations(input_rules: Iterable[Optional[int]]) -> dict[int, set[int]]:
     """
     Returns all 256-set rules which encode the same tile in a reduced rule-set of 47 rules
     (including the rule passed in). If the rule passed in is None, an empty list is returned.
     Rules are ORed numbers created form DmaNeighbors. See REMAP_RULES for the 47 rule-set.
     The returned value is a dict, where each key is one of the input rules, and the values ALL matching 256-rules.
     """
-    rules: Dict[int, Set[int]] = {x: set() for x in input_rules if x is not None}
+    rules: dict[int, set[int]] = {x: set() for x in input_rules if x is not None}
     for rule in range(0, 256):
         orig_rule = rule
         if rule & DmaNeighbor.NORTH_WEST == DmaNeighbor.NORTH_WEST:

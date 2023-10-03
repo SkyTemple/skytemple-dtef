@@ -65,7 +65,7 @@ class ExplorersDtef:
             )
 
         # Process tiles
-        self._variation_map: List[List[int]] = [[], [], []]
+        self._variation_map: list[list[int]] = [[], [], []]
         self._coord_map = {}
         # Pre-fill variation maps
         for ti, the_type in enumerate((DmaType.WALL, DmaType.WATER, DmaType.FLOOR)):
@@ -85,9 +85,9 @@ class ExplorersDtef:
                     self._variation_map[iv].append(variation)
 
         # Non standard tiles
-        self.rest_mappings: List[RestTileMapping] = []
-        self._tiles_to_draw_on_more: List[int] = []
-        self._rest_mappings_idxes: Dict[int, int] = {}  # dpc -> rest_mappings index
+        self.rest_mappings: list[RestTileMapping] = []
+        self._tiles_to_draw_on_more: list[int] = []
+        self._rest_mappings_idxes: dict[int, int] = {}  # dpc -> rest_mappings index
 
         # Process all normal rule tiles (47-set and check 256-set extended)
         for ti, the_type in enumerate((DmaType.WALL, DmaType.WATER, DmaType.FLOOR)):
@@ -129,7 +129,7 @@ class ExplorersDtef:
     def get_xml(self) -> ElementTree.Element:
         return DungeonXml.generate(self.dpla, TW, self.rest_mappings)
 
-    def get_tiles(self) -> List[Image.Image]:
+    def get_tiles(self) -> list[Image.Image]:
         return [self.var0, self.var1, self.var2, self.rest]
 
     @staticmethod

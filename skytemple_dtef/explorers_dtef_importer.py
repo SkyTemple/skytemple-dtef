@@ -59,15 +59,15 @@ class ExplorersDtefImporter:
         self.dpla = dpla
 
         self._dirname: Optional[str] = None
-        self._tileset_file_map: Dict[str, Image.Image] = {}
-        self._tileset_chunk_map: Dict[str, Dict[Tuple[int, int], int]] = {}
+        self._tileset_file_map: dict[str, Image.Image] = {}
+        self._tileset_chunk_map: dict[str, dict[tuple[int, int], int]] = {}
         self._xml: Optional[Element] = None
 
         # The individual
-        self._chunks: List[Image.Image] = [Image.new('P', (CHUNK_DIM, CHUNK_DIM))]
+        self._chunks: list[Image.Image] = [Image.new('P', (CHUNK_DIM, CHUNK_DIM))]
         self._palette: Optional[bytes] = None
-        self._dpla__colors: List[List[int]] = []
-        self._dpla__durations_per_frame_for_colors: List[int] = []
+        self._dpla__colors: list[list[int]] = []
+        self._dpla__durations_per_frame_for_colors: list[int] = []
         self._dma__original_chunk_mappings = dma.chunk_mappings
         self.dma.chunk_mappings = [0 for _ in range(0, len(dma.chunk_mappings))]
 
@@ -90,14 +90,14 @@ class ExplorersDtefImporter:
                                      "but only {CHUNK_DIM}px are supported.")))
 
             var_map = get_rule_variations(REMAP_RULES)
-            ts: List[str] = [os.path.basename(fn_var0), os.path.basename(fn_var1), os.path.basename(fn_var2)]
+            ts: list[str] = [os.path.basename(fn_var0), os.path.basename(fn_var1), os.path.basename(fn_var2)]
             for i, fn in enumerate(ts):
                 self._import_tileset(fn, var_map, DmaType.WALL, 0, 0, TILESHEET_WIDTH, TILESHEET_HEIGHT, i, ts[i-1] if i > 0 else None)
                 self._import_tileset(fn, var_map, DmaType.WATER, TILESHEET_WIDTH, 0, TILESHEET_WIDTH, TILESHEET_HEIGHT, i, ts[i-1] if i > 0 else None)
                 self._import_tileset(fn, var_map, DmaType.FLOOR, TILESHEET_WIDTH * 2, 0, TILESHEET_WIDTH, TILESHEET_HEIGHT, i, ts[i-1] if i > 0 else None)
 
-            ani0: List[List[int]] = [[] for __ in range(0, 16)]
-            ani1: List[List[int]] = [[] for __ in range(0, 16)]
+            ani0: list[list[int]] = [[] for __ in range(0, 16)]
+            ani1: list[list[int]] = [[] for __ in range(0, 16)]
             dur0 = [6 for __ in range(0, 16)]
             dur1 = [6 for __ in range(0, 16)]
             for child in self._xml:
@@ -144,7 +144,7 @@ class ExplorersDtefImporter:
                                  'The palettes of the images do not match. First image read that didn\'t match: '
                                  '"{basename}"')))
 
-    def _import_tileset(self, fn: str, rule_map: Dict[int, Set[int]], typ: int, bx, by, w, h, var_id, prev_fn: Optional[str]):
+    def _import_tileset(self, fn: str, rule_map: dict[int, set[int]], typ: int, bx, by, w, h, var_id, prev_fn: Optional[str]):
         assert fn in self._tileset_file_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         assert fn in self._tileset_chunk_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         tileset = self._tileset_file_map[fn]
@@ -268,7 +268,7 @@ class ExplorersDtefImporter:
         return new_img
 
     def _prepare_import_animation(self, child):
-        colors: List[List[int]] = [[] for __ in range(0, 16)]
+        colors: list[list[int]] = [[] for __ in range(0, 16)]
         color_animations = []
         # If we have an old XML with duration on animation
         if ANIMATION__DURATION in child.attrib:
@@ -299,5 +299,5 @@ class ExplorersDtefImporter:
         self.dpla.durations_per_frame_for_colors = self._dpla__durations_per_frame_for_colors
 
     @staticmethod
-    def _convert_hex_str_color_to_tuple(h: str) -> Tuple[int, ...]:
+    def _convert_hex_str_color_to_tuple(h: str) -> tuple[int, ...]:
         return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))

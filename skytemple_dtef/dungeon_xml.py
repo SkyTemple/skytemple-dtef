@@ -101,7 +101,7 @@ class RestTileMappingEntry:
 
 
 class RestTileMapping:
-    def __init__(self, x: int, y: int, mappings: List[RestTileMappingEntry], file_name: str):
+    def __init__(self, x: int, y: int, mappings: list[RestTileMappingEntry], file_name: str):
         self.x = x
         self.y = y
         self.mappings = mappings
@@ -110,7 +110,7 @@ class RestTileMapping:
 
 class DungeonXml:
     @classmethod
-    def generate(cls, dpla: DplaProtocol, dungeon_tile_dimensions: int, rest_tile_mappings: List[RestTileMapping]) -> Element:
+    def generate(cls, dpla: DplaProtocol, dungeon_tile_dimensions: int, rest_tile_mappings: list[RestTileMapping]) -> Element:
         dungeon_tileset = Element(DUNGEON_TILESET, {DIMENSIONS: str(dungeon_tile_dimensions)})
         dungeon_tileset.append(Comment(" Dungeon Tile Exchange Format (DTEF) - SkyTemple PMD Explorers of Sky Export.\n"
                                        "       This XML file contains additional metadata for the tileset.\n"
