@@ -183,7 +183,7 @@ class ExplorersDtefImporter:
 
     def _insert_chunk_or_reuse(self, new_chunk):
         for i, chunk in enumerate(self._chunks):
-            if chunk.getdata() == new_chunk.getdata():
+            if list(chunk.getdata()) == list(new_chunk.getdata()):
                 return i
 
         self._chunks.append(new_chunk)
@@ -251,11 +251,12 @@ class ExplorersDtefImporter:
                         self.dma.set_extra(DmaExtraType.WALL_OR_VOID, int(m.group(1)), chunk)
 
     def _read_additional_chunk_idx(self, fn, x, y, dirname):
-        if fn not in self._tileset_file_map:
+        # XXX: We should not need to re-read the file if (x, y) is not found. (x, y) should exist!
+        if fn not in self._tileset_file_map or (x, y) not in self._tileset_chunk_map[fn]:
             self._open_tileset(os.path.join(dirname, fn))
             tileset = self._tileset_file_map[fn]
-            for iy in range(0, tileset.height, CHUNK_DIM):
-                for ix in range(0, tileset.width, CHUNK_DIM):
+            for iy in range(0, tileset.height + CHUNK_DIM, CHUNK_DIM):
+                for ix in range(0, tileset.width + CHUNK_DIM, CHUNK_DIM):
                     chunk_index = self._insert_chunk_or_reuse(tileset.crop((ix, iy, ix + CHUNK_DIM, iy + CHUNK_DIM)))
                     self._tileset_chunk_map[fn][(floor(ix / CHUNK_DIM), floor(iy / CHUNK_DIM))] = chunk_index
         return self._tileset_chunk_map[fn][(x, y)]
