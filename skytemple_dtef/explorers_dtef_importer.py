@@ -58,14 +58,14 @@ class ExplorersDtefImporter:
         self.dpl = dpl
         self.dpla = dpla
 
-        self._dirname: Optional[str] = None
+        self._dirname: str | None = None
         self._tileset_file_map: dict[str, Image.Image] = {}
         self._tileset_chunk_map: dict[str, dict[tuple[int, int], int]] = {}
-        self._xml: Optional[Element] = None
+        self._xml: Element | None = None
 
         # The individual
         self._chunks: list[Image.Image] = [Image.new('P', (CHUNK_DIM, CHUNK_DIM))]
-        self._palette: Optional[bytes] = None
+        self._palette: bytes | None = None
         self._dpla__colors: list[list[int]] = []
         self._dpla__durations_per_frame_for_colors: list[int] = []
         self._dma__original_chunk_mappings = dma.chunk_mappings
@@ -144,7 +144,7 @@ class ExplorersDtefImporter:
                                  'The palettes of the images do not match. First image read that didn\'t match: '
                                  '"{basename}"')))
 
-    def _import_tileset(self, fn: str, rule_map: dict[int, set[int]], typ: int, bx, by, w, h, var_id, prev_fn: Optional[str]):
+    def _import_tileset(self, fn: str, rule_map: dict[int, set[int]], typ: int, bx, by, w, h, var_id, prev_fn: str | None):
         assert fn in self._tileset_file_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         assert fn in self._tileset_chunk_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         tileset = self._tileset_file_map[fn]
