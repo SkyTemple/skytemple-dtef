@@ -87,7 +87,7 @@ REMAP_RULES = [
 ]
 
 
-def get_rule_variations(input_rules: Iterable[Optional[int]]) -> dict[int, set[int]]:
+def get_rule_variations(input_rules: Iterable[int | None]) -> dict[int, set[int]]:
     """
     Returns all 256-set rules which encode the same tile in a reduced rule-set of 47 rules
     (including the rule passed in). If the rule passed in is None, an empty list is returned.

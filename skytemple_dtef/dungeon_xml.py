@@ -52,7 +52,7 @@ SPECIAL_MAPPING__IDENTIFIER = "identifier"
 
 
 class RestTileMappingEntry:
-    def __init__(self, dmatype_name: Union[Literal["normal"], Literal["extra"]], dmatype_idx: int, neighbors: int, variation_or_index: int):
+    def __init__(self, dmatype_name: Literal["normal"] | Literal["extra"], dmatype_idx: int, neighbors: int, variation_or_index: int):
         self.dmatype_name = dmatype_name
         self.dmatype_idx = dmatype_idx
         self.neighbors = neighbors

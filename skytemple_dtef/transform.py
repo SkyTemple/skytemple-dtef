@@ -96,7 +96,7 @@ def xml_filter_tags(xml: Element, tag_list) -> Element:
     return new_ele
 
 
-def convert_hex_str_color_to_tuple(h: str) -> Optional[tuple[int, int, int]]:
+def convert_hex_str_color_to_tuple(h: str) -> tuple[int, int, int] | None:
     if h is None:
         return None
     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))  # type: ignore
