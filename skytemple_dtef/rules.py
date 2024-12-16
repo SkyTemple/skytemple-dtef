@@ -87,14 +87,14 @@ REMAP_RULES = [
 ]
 
 
-def get_rule_variations(input_rules: Iterable[int | None]) -> dict[int, set[int]]:
+def get_rule_variations(input_rules: Iterable[int | None]) -> dict[int | None, set[int]]:
     """
     Returns all 256-set rules which encode the same tile in a reduced rule-set of 47 rules
     (including the rule passed in). If the rule passed in is None, an empty list is returned.
     Rules are ORed numbers created form DmaNeighbors. See REMAP_RULES for the 47 rule-set.
     The returned value is a dict, where each key is one of the input rules, and the values ALL matching 256-rules.
     """
-    rules: dict[int, set[int]] = {x: set() for x in input_rules if x is not None}
+    rules: dict[int | None, set[int]] = {x: set() for x in input_rules}
     for rule in range(0, 256):
         orig_rule = rule
         if rule & DmaNeighbor.NORTH_WEST == DmaNeighbor.NORTH_WEST:

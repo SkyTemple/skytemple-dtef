@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Example script to export all dungeon tilesets from Explorers of Sky as DTEF."""
 #  Copyright 2020-2023 Capypara and the SkyTemple Contributors
 #
@@ -16,6 +17,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with SkyTemple.  If not, see <https://www.gnu.org/licenses/>.
 import os
+import sys
 import shutil
 
 from ndspy.rom import NintendoDSRom
@@ -32,9 +34,8 @@ from skytemple_files.graphics.dpl.protocol import DplProtocol
 from skytemple_files.graphics.dpla.protocol import DplaProtocol
 
 output_dir_base = os.path.join(os.path.dirname(__file__), 'dbg_output')
-base_dir = os.path.join(os.path.dirname(__file__), '..')
 
-rom = NintendoDSRom.fromFile(os.path.join(base_dir, 'skyworkcopy_us.nds'))
+rom = NintendoDSRom.fromFile(sys.argv[1])
 
 dungeon_bin_bin = rom.getFileByName('DUNGEON/dungeon.bin')
 static_data = get_ppmdu_config_for_rom(rom)

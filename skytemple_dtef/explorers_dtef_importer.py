@@ -144,7 +144,7 @@ class ExplorersDtefImporter:
                                  'The palettes of the images do not match. First image read that didn\'t match: '
                                  '"{basename}"')))
 
-    def _import_tileset(self, fn: str, rule_map: dict[int, set[int]], typ: int, bx, by, w, h, var_id, prev_fn: str | None):
+    def _import_tileset(self, fn: str, rule_map: dict[int | None, set[int]], typ: int, bx, by, w, h, var_id, prev_fn: str | None):
         assert fn in self._tileset_file_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         assert fn in self._tileset_chunk_map, f(_("Logic error: Tileset file {fn} was not loaded."))
         tileset = self._tileset_file_map[fn]
